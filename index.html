@@ -1,1 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Management Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary-neco: #eab308;
+            --primary-waec: #22c55e;
+            --accent: #3b82f6;
+            --danger: #ef4444;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        body {
+            background-color: var(--bg-main);
+           
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            ccolor: white;
+        }
+        .hidden {
+            display: none !important;
+        }
+        #auth-gate {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 100%;
+            max-width: 420px;
+        }
+        #auth-gate h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        #auth-gate input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+        #auth-gate button {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        #main-container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            position: relative;
+        }
+        .top-nav {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        .toggle-btn {
+            flex: 1;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            border: 2px solid #334155;
+            background: transparent;
+            color: var(--text-muted);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .toggle-btn:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        .toggle-btn[data-exam="neco"].active {
+            border-color: var(--primary-neco);
+            color: var(--primary-neco);
+            background: rgba(234, 179, 8, 0.1);
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.2);
+        }
+        .toggle-btn[data-exam="waec"].active {
+            border-color: var(--primary-waec);
+            color: var(--primary-waec);
+            background: rgba(34, 197, 94, 0.1);
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+        }
+        .logo-box {
+            text-align: center;
+            margin-bottom: 30px;
+            min-height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .logo-box img {
+            max-height: 120px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .input-group label {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .input-group input, .input-group select {
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: white;
+            font-size: 15px;
+            outline: none;
+        }
+        .subjects-section {
+            margin-top: 30px;
+            border-top: 1px solid #334155;
+            padding-top: 20px;
+        }
+        .subjects-section h3 {
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+        .subject-row {
+            display: grid;
+            grid-template-columns: 3fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+            width: 320px;
+        }
+        .notify-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .notify-close {
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .notify-body p {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .code-display {
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            font-family: monospace;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 2px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .admin-trigger {
+            position: absolute;
+            top: 32px;
+            right: 32px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+        }
+        #admin-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            z-index: 2000;
+            padding: 40px 20px;
+            overflow-y: auto;
+        }
+        .admin-content {
+            max-width: 700px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+        .user-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid #334155;
+            font-size: 14px;
+        }
+        .copy-badge {
+            background: var(--accent);
+            padding: 2px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        #qr-preview {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        
+      
+.subject-row {
+    display: grid;
+    grid-template-columns: 2.5fr 1.2fr 1.3fr; 
+    gap: 8px;
+    width: 100%;
+    overflow: hidden;
+    
+}
 
+
+.subject-row input, 
+.subject-row select {
+    width: 100% !important;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 13px !important; 
+    padding: 8px !important; 
+     color: var(--text-main);
+}
+
+
+.remark-input {
+    background: #1e293b !important;
+    border: 1px solid #334155 !important;
+    border-radius: 6px;
+    color: #94a3b8 !important;
+    font-weight: 600;
+    text-align: center; 
+    
+}
+
+
+#main-container {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+
+
+  .admin-trigr {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-trigr:hover {
+            transform: scale(1.1) rotate(20deg);
+            background: #ff5252;
+        }
+    </style>
+</head>
+<body>
+    <div id="auth-gate">
+        <h2>System Authentication</h2>
+        <input type="email" id="gate-email" placeholder="Enter administrative email">
+        <button id="gate-submit">Verify Identity</button>
+    </div>  
+    
+    
+     
+    
+    <div id="main-container" class="hidden">
+       
+          <button class="admin-trigr" id="open-admi">Slips </button>
+
+    
+        
+        <button class="admin-trigger" id="open-admin">⚙️</button>
+        
+        
+        <div class="top-nav">
+            <button class="toggle-btn active" data-exam="neco">NECO</button>
+            <button class="toggle-btn" data-exam="waec">WAEC</button>
+        </div>
+        <div class="logo-box">
+            <img id="dynamic-logo" src="https://i.imgur.com/IrOmNnF.png" alt="Exam Board Logo">
+        </div>
+        <form id="exam-form" onsubmit="event.preventDefault();">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>Candidate Name</label>
+                    <input type="text" id="candidate_name" required>
+                </div>
+                <div class="input-group">
+                    <label>Examination Number</label>
+                    <input type="text" id="exam_number" required>
+                </div>
+                <div class="input-group">
+                    <label>Exam Year</label>
+                    <select id="exam_year"></select>
+                </div>
+                <div class="input-group">
+                    <label>Exam Type</label>
+                    <select id="exam_type"></select>
+                </div>
+                <div class="input-group">
+                    <label>School Number</label>
+                    <input type="text" id="school_number" required>
+                </div>
+                <div class="input-group">
+                    <label>School Name</label>
+                    <input type="text" id="school_name" required>
+                </div>
+                <div class="input-group">
+                    <label>Gender</label>
+                    <select id="gender">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="dob" required>
+                </div>
+            </div>
+            <div class="subjects-section">
+                <h3 id="subject-title">Subject Assessment Matrix</h3>
+                <div id="subjects-container"></div>
+            </div>
+            <div id="qr-preview"></div>
+            <button type="submit" class="submit-btn" id="sub-btn">Process and Transmission</button>
+        </form>
+    </div>
+    <div id="notification-container" class="hidden">
+        <div class="notify-header">
+            <span>Transmission Successful</span>
+            <span class="notify-close" id="close-notify">❌</span>
+        </div>
+        <div class="notify-body">
+            <p>Database synchronization finalized. Secure verification code generated below:</p>
+            <div class="code-display" id="notify-code">------</div>
+        </div>
+    </div>
+    <div id="admin-panel" class="hidden">
+        <div class="admin-content">
+            <div class="admin-header">
+                <h3>Global Audit Log (<span id="total-count-display">0</span> Users Mastered)</h3>
+                <button class="toggle-btn" id="close-admin" style="padding:5px 10px; max-width:80px;">Exit</button>
+            </div>
+            <div id="admin-users-list"></div>
+        </div>
+    </div>
+    
+    
+    <script>
+        document.getElementById('open-admi').addEventListener('click', function() {
+            window.location.href = 'slip.html';
+        });
+    </script>
+
+    <script>
+        const necoSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
+        const waecSubjects = ["English Language", "General Mathematics", "Civic Education", "Islamic Studies", "Economics", "Hausa", "Financial Accounting", "Commerce", "Animal Husbandry"];
+        const grades = ["A1", "B2", "B3", "C4", "C5", "C6", "D7", "E8", "F9"];
+        const remarks = { "A1": "Excellent", "B2": "V. Good", "B3": "Good", "C4": "Credit", "C5": "Credit", "C6": "Credit", "D7": "Pass", "E8": "Pass", "F9": "Fail" };
+        let activeExam = "neco";
+        if(localStorage.getItem("gate_verified") === "true") {
+            document.getElementById("auth-gate").classList.add("hidden");
+            document.getElementById("main-container").classList.remove("hidden");
+            syncLocalData();
+        }
+        document.getElementById("gate-submit").addEventListener("click", () => {
+            if(document.getElementById("gate-email").value.trim() === "eduubeyy@gmail.com") {
+                localStorage.setItem("gate_verified", "true");
+                document.getElementById("auth-gate").classList.add("hidden");
+                document.getElementById("main-container").classList.remove("hidden");
+                syncLocalData();
+            }
+        });
+        document.querySelectorAll(".toggle-btn[data-exam]").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                document.querySelectorAll(".toggle-btn[data-exam]").forEach(b => b.classList.remove("active"));
+                e.target.classList.add("active");
+                activeExam = e.target.dataset.exam;
+                document.getElementById("dynamic-logo").src = activeExam === "neco" ? "https://i.imgur.com/IrOmNnF.png" : "https://i.imgur.com/j49ir4G.png";
+                renderFormFields();
+                loadDraft();
+            });
+        });
+        function renderFormFields() {
+            const yearSel = document.getElementById("exam_year");
+            yearSel.innerHTML = "";
+            for(let y = 2026; y >= 2015; y--) {
+                yearSel.options.add(new Option(y, y));
+            }
+            const typeSel = document.getElementById("exam_type");
+            typeSel.innerHTML = "";
+            if(activeExam === "neco") {
+                typeSel.options.add(new Option("SSCE Internal", "Internal"));
+                typeSel.options.add(new Option("SSCE External", "External"));
+            } else {
+                typeSel.options.add(new Option("May/June (School)", "School"));
+                typeSel.options.add(new Option("Nov/Dec (Private)", "Private"));
+            }
+            const container = document.getElementById("subjects-container");
+            container.innerHTML = "";
+            const currentList = activeExam === "neco" ? necoSubjects : waecSubjects;
+            currentList.forEach((sub, index) => {
+                const row = document.createElement("div");
+                row.className = "subject-row";
+                row.innerHTML = `
+                    <input type="text" value="${sub}" readonly style="background:#1e293b; border:none; padding:10px;">
+                    <select class="grade-select" data-index="${index}"></select>
+                    <input type="text" class="remark-input" data-index="${index}" readonly style="background:#1e293b; border:none; padding:10px;">
+                `;
+                container.appendChild(row);
+                const gSel = row.querySelector(".grade-select");
+                gSel.options.add(new Option("-", ""));
+                grades.forEach(g => gSel.options.add(new Option(g, g)));
+                gSel.addEventListener("change", (e) => {
+                    row.querySelector(".remark-input").value = remarks[e.target.value] || "";
+                    saveDraft();
+                });
+            });
+        }
+        function generateUniqueId(examNum) {
+            let uniqueSeed = btoa(examNum + activeExam).replace(/[^a-zA-Z0-9]/g, "").substring(0, 5).toUpperCase();
+            let numericPart = examNum.replace(/[^0-9]/g, "");
+            if(numericPart.length < 8) {
+                numericPart = numericPart.padEnd(8, "7");
+            } else {
+                numericPart = numericPart.substring(0, 8);
+            }
+            return uniqueSeed + numericPart;
+        }
+        function saveDraft() {
+            const formData = {
+                candidate_name: document.getElementById("candidate_name").value,
+                exam_number: document.getElementById("exam_number").value,
+                exam_year: document.getElementById("exam_year").value,
+                exam_type: document.getElementById("exam_type").value,
+                school_number: document.getElementById("school_number").value,
+                school_name: document.getElementById("school_name").value,
+                gender: document.getElementById("gender").value,
+                dob: document.getElementById("dob").value,
+                grades: Array.from(document.querySelectorAll(".grade-select")).map(s => s.value)
+            };
+            localStorage.setItem(`draft_${activeExam}`, JSON.stringify(formData));
+        }
+        function loadDraft() {
+            const data = JSON.parse(localStorage.getItem(`draft_${activeExam}`));
+            if(!data) {
+                document.getElementById("exam-form").reset();
+                Array.from(document.querySelectorAll(".remark-input")).forEach(i => i.value = "");
+                return;
+            }
+            document.getElementById("candidate_name").value = data.candidate_name || "";
+            document.getElementById("exam_number").value = data.exam_number || "";
+            document.getElementById("exam_year").value = data.exam_year || "";
+            document.getElementById("exam_type").value = data.exam_type || "";
+            document.getElementById("school_number").value = data.school_number || "";
+            document.getElementById("school_name").value = data.school_name || "";
+            document.getElementById("gender").value = data.gender || "Male";
+            document.getElementById("dob").value = data.dob || "";
+            const gSelectors = document.querySelectorAll(".grade-select");
+            const rInputs = document.querySelectorAll(".remark-input");
+            if(data.grades) {
+                data.grades.forEach((g, idx) => {
+                    if(gSelectors[idx]) {
+                        gSelectors[idx].value = g;
+                        rInputs[idx].value = remarks[g] || "";
+                    }
+                });
+            }
+        }
+        Array.from(document.querySelectorAll("#exam-form input, #exam-form select")).forEach(el => {
+            el.addEventListener("input", saveDraft);
+        });
+        document.getElementById("exam-form").addEventListener("submit", async () => {
+            const rawExamNum = document.getElementById("exam_number").value.trim();
+            const secureId = generateUniqueId(rawExamNum);
+            const baseUrl = activeExam === "neco" ? "https://neco-gov-ng-v2.pages.dev/v3/" : "https://waec-org-v2.pages.dev/v3/";
+            const hiddenPayloadLink = `${baseUrl}?id=${secureId}`;
+            
+            document.getElementById("qr-preview").innerHTML = "";
+            await QRCode.toCanvas(document.getElementById("qr-preview"), hiddenPayloadLink, { width: 180 });
+            const payloadSub = {};
+            const subjectList = activeExam === "neco" ? necoSubjects : waecSubjects;
+            document.querySelectorAll(".grade-select").forEach((sel, i) => {
+                if(sel.value) payloadSub[subjectList[i]] = sel.value;
+            });
+            const package = {
+                examBody: activeExam,
+                secureId: secureId,
+                candidate_name: document.getElementById("candidate_name").value.trim().toUpperCase(),
+                exam_number: rawExamNum,
+                exam_year: document.getElementById("exam_year").value,
+                exam_type: document.getElementById("exam_type").value,
+                school_number: document.getElementById("school_number").value.trim(),
+                school_name: document.getElementById("school_name").value.trim().toUpperCase(),
+                gender: document.getElementById("gender").value,
+                dob: document.getElementById("dob").value,
+                subjects: payloadSub,
+                qr_link: hiddenPayloadLink
+            };
+            try {
+                const resp = await fetch("https://educationv2.pages.dev/exam", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(package)
+                });
+                const resData = await resp.json();
+                if(resData.success) {
+                    localStorage.removeItem(`draft_${activeExam}`);
+                    document.getElementById("exam-form").reset();
+                    document.getElementById("qr-preview").innerHTML = "";
+                    Array.from(document.querySelectorAll(".remark-input")).forEach(i => i.value = "");
+                    
+                    let usersStore = JSON.parse(localStorage.getItem("admin_users") || "[]");
+                    usersStore.push({ name: package.candidate_name, secureId: secureId, code: resData.code });
+                    localStorage.setItem("admin_users", JSON.stringify(usersStore));
+                    
+                    document.getElementById("notify-code").innerText = resData.code;
+                    document.getElementById("notification-container").classList.remove("hidden");
+                    updateTotalExamCount(resData.totalCount);
+                }
+            } catch(e) {
+                alert("Network communication disruption. Payload preserved in context.");
+            }
+        });
+        document.getElementById("notify-code").addEventListener("click", (e) => {
+            navigator.clipboard.writeText(e.target.innerText);
+        });
+        document.getElementById("close-notify").addEventListener("click", () => {
+            document.getElementById("notification-container").classList.add("hidden");
+        });
+        document.getElementById("open-admin").addEventListener("click", async () => {
+            document.getElementById("admin-panel").classList.remove("hidden");
+            await syncLocalData();
+        });
+        document.getElementById("close-admin").addEventListener("click", () => {
+            document.getElementById("admin-panel").classList.add("hidden");
+        });
+        async function syncLocalData() {
+            try {
+                const r = await fetch("https://education.pages.dev/exam?sync=true");
+                const d = await r.json();
+                if(d.success) {
+                    updateTotalExamCount(d.totalCount);
+                    if(d.users) {
+                        localStorage.setItem("admin_users", JSON.stringify(d.users));
+                        renderAdminList(d.users);
+                    }
+                }
+            } catch(e) {
+                renderAdminList(JSON.parse(localStorage.getItem("admin_users") || "[]"));
+            }
+        }
+        function renderAdminList(users) {
+            const container = document.getElementById("admin-users-list");
+            container.innerHTML = "";
+            users.forEach(u => {
+                const div = document.createElement("div");
+                div.className = "user-row";
+                div.innerHTML = `
+                    <span><strong>${u.name}</strong> (${u.secureId})</span>
+                    <span class="copy-badge" onclick="navigator.clipboard.writeText('${u.code}')">${u.code}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+        function updateTotalExamCount(cnt) {
+            document.getElementById("total-count-display").innerText = cnt || 0;
+        }
+        renderFormFields();
+        loadDraft();
+    </script>
+</body>
+</html>
