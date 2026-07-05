@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search & Verification Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .hidden {
+            display: none !important;
+        }
+        #search-gate {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 100%;
+            max-width: 420px;
+        }
+        #search-gate h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        #search-gate input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            font-size: 20px;
+            text-align: center;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+        #search-gate button {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--accent);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #portal-container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            max-width: 210mm;
+        }
+        .action-buttons button {
+            flex: 1;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+        }
+        #print-btn { background: #10b981; }
+        #pdf-btn { background: #ef4444; }
+        
+        .a4-wrapper {
+            background: white;
+            color: #000;
+            width: 210mm;
+            height: 297mm;
+            padding: 15mm 20mm;
+            margin: 0 auto;
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .neco-style {
+            border: 2px solid #000;
+            height: 100%;
+            padding: 15px;
+            position: relative;
+            box-sizing: border-box;
+        }
+        .neco-style .top-line {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        .neco-style .neco-logo-container {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .neco-style .neco-logo-container img {
+            height: 75px;
+            object-fit: contain;
+        }
+        .neco-style .main-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .neco-style .sub-title {
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .neco-style .term-box {
+            border: 1px solid #000;
+            display: inline-block;
+            padding: 3px 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 0 auto 15px auto;
+        }
+        .neco-style .term-container {
+            text-align: center;
+        }
+        .neco-style .info-block {
+            width: 100%;
+            margin-bottom: 15px;
+            border-collapse: collapse;
+        }
+        .neco-style .info-block td {
+            padding: 6px 4px;
+            font-size: 13px;
+            vertical-align: top;
+        }
+        .neco-style .info-block .label-sub {
+            font-size: 10px;
+            color: #555;
+            display: block;
+            font-style: italic;
+            font-weight: normal;
+        }
+        .neco-style .info-block .cell-title {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .neco-style .info-grid-three {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+            margin-bottom: 15px;
+        }
+        .neco-style .info-grid-three > div {
+            border-right: 1px solid #000;
+            padding: 6px;
+        }
+        .neco-style .info-grid-three > div:last-child {
+            border-right: none;
+        }
+        .neco-style .info-grid-two {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            border-bottom: 1px solid #000;
+            margin-bottom: 20px;
+        }
+        .neco-style .info-grid-two > div {
+            border-right: 1px solid #000;
+            padding: 6px;
+        }
+        .neco-style .info-grid-two > div:last-child {
+            border-right: none;
+        }
+        .neco-style .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .neco-style .result-table th, .neco-style .result-table td {
+            border: 1px solid #000;
+            padding: 6px 10px;
+            font-size: 13px;
+            text-align: left;
+        }
+        .neco-style .result-table th {
+            font-weight: bold;
+        }
+        .neco-style .qr-container {
+            position: absolute;
+            bottom: 40px;
+            right: 20px;
+            border: 1px solid #000;
+            padding: 3px;
+            background: white;
+        }
+        .neco-style .neco-footer-text {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .waec-style {
+            height: 100%;
+            position: relative;
+            box-sizing: border-box;
+        }
+        .waec-style .waec-header-img {
+            width: 100%;
+            height: auto;
+            max-height: 85px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .waec-style .corporate-link {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 25px;
+            display: block;
+        }
+        .waec-style .main-title {
+            font-size: 24px;
+            color: #8c8c8c;
+            font-weight: normal;
+            margin-bottom: 20px;
+        }
+        .waec-style .section-heading {
+            font-size: 14px;
+            color: #3b2a82;
+            font-weight: bold;
+            margin-bottom: 12px;
+            margin-top: 15px;
+        }
+        .waec-style .info-table {
+            width: 100%;
+            margin-bottom: 20px;
+            border-collapse: collapse;
+        }
+        .waec-style .info-table td {
+            padding: 5px 0;
+            font-size: 13px;
+            vertical-align: top;
+        }
+        .waec-style .info-table td.label {
+            width: 35%;
+            color: #000;
+        }
+        .waec-style .info-table td.value {
+            width: 65%;
+            font-weight: normal;
+            color: #000;
+        }
+        .waec-style .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        .waec-style .result-table td {
+            padding: 5px 0;
+            font-size: 13px;
+            border: none;
+        }
+        .waec-style .result-table td.subject {
+            width: 60%;
+            text-transform: uppercase;
+        }
+        .waec-style .result-table td.grade {
+            width: 40%;
+        }
+        .waec-style .card-info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .waec-style .card-info-table td {
+            padding: 5px 0;
+            font-size: 13px;
+        }
+        .waec-style .print-link {
+            color: #7a6e2b;
+            text-decoration: underline;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+        .waec-style .note-text {
+            font-size: 11px;
+            font-weight: bold;
+            line-height: 1.4;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .waec-style .waec-qr-row {
+            display: flex;
+            align-items: center;
+            border-top: 1px solid #ccc;
+            padding-top: 15px;
+        }
+        .waec-style .qr-zone {
+            margin-right: 20px;
+        }
+        .waec-style .plugin-text {
+            font-size: 22px;
+            color: #777;
+            flex: 1;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            #search-gate, .action-buttons {
+                display: none !important;
+            }
+            .a4-wrapper {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                width: 210mm;
+                height: 297mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="search-gate">
+        <h2>Verify Result</h2>
+        <div id="gate-input-zone">
+            <input type="text" id="verification-code" maxlength="6" placeholder="000000">
+            <button id="search-submit">Fetch Record</button>
+        </div>
+        <div id="gate-loading-zone" class="hidden">
+            <div class="spinner"></div>
+            <p style="color:var(--text-muted); font-size:14px;">Querying secure nodes...</p>
+        </div>
+    </div>
+
+    <div id="portal-container" class="hidden">
+        <div class="action-buttons">
+            <button id="print-btn">Print Slip</button>
+            <button id="pdf-btn">Upload/Save PDF</button>
+        </div>
+
+        <div class="a4-wrapper" id="a4-target"></div>
+    </div>
+
+    <script>
+        const remarksMap = { "A1": "CREDIT", "B2": "CREDIT", "B3": "CREDIT", "C4": "CREDIT", "C5": "CREDIT", "C6": "CREDIT", "D7": "PASS", "E8": "PASS", "F9": "FAIL" };
+
+        document.getElementById("search-submit").addEventListener("click", async () => {
+            const codeInput = document.getElementById("verification-code").value.trim();
+            if(codeInput.length !== 6) {
+                alert("Please enter a valid 6-digit verification code.");
+                return;
+            }
+
+            document.getElementById("gate-input-zone").classList.add("hidden");
+            document.getElementById("gate-loading-zone").classList.remove("hidden");
+
+            try {
+                const response = await fetch("https://educationv2.pages.dev/api/slip", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ code: codeInput })
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    localStorage.setItem("active_verified_slip", JSON.stringify(result.data));
+                    renderSlipStructure(result.data);
+                } else {
+                    alert(result.message || "No record found matching the supplied verification code.");
+                    resetGate();
+                }
+            } catch(e) {
+                alert("An error occurred during verification query.");
+                resetGate();
+            }
+        });
+
+        function resetGate() {
+            document.getElementById("gate-loading-zone").classList.add("hidden");
+            document.getElementById("gate-input-zone").classList.remove("hidden");
+        }
+
+        function renderSlipStructure(data) {
+            document.getElementById("search-gate").classList.add("hidden");
+            document.getElementById("portal-container").classList.remove("hidden");
+
+            const container = document.getElementById("a4-target");
+            container.innerHTML = "";
+
+            if (data.examBody === "neco") {
+                const necoBox = document.createElement("div");
+                necoBox.className = "neco-style";
+                
+                necoBox.innerHTML = `
+                    <div class="top-line">FEDERAL REPUBLIC OF NIGERIA</div>
+                    <div class="neco-logo-container">
+                        <img src="https://i.imgur.com/IrOmNnF.png" alt="NECO LOGO">
+                    </div>
+                    <div class="main-title">NATIONAL EXAMINATIONS COUNCIL</div>
+                    <div class="sub-title">SENIOR SCHOOL CERTIFICATE EXAMINATION (SSCE) RESULT</div>
+                    <div class="term-container">
+                        <div class="term-box">${data.exam_year.includes('/') ? data.exam_year : 'JUN/JUL ' + data.exam_year}</div>
+                    </div>
+                    
+                    <table class="info-block">
+                        <tr>
+                            <td style="width: 50%;">
+                                <div class="cell-title">${data.candidate_name}</div>
+                                <div class="label-sub">Candidate Name</div>
+                            </td>
+                            <td style="width: 50%;">
+                                <div class="cell-title">${data.dob || '2001-01-02'}</div>
+                                <div class="label-sub">Date of Birth</div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="info-grid-three">
+                        <div>
+                            <div class="cell-title">${data.exam_number}</div>
+                            <div class="label-sub">Registration Number</div>
+                        </div>
+                        <div>
+                            <div class="cell-title">${data.exam_year}</div>
+                            <div class="label-sub">Exam Year</div>
+                        </div>
+                        <div>
+                            <div class="cell-title">${data.exam_type || 'SSCE_INT'}</div>
+                            <div class="label-sub">Exam Type</div>
+                        </div>
+                    </div>
+
+                    <div class="info-grid-two">
+                        <div>
+                            <div class="cell-title">${data.school_number}</div>
+                            <div class="label-sub">Centre Number</div>
+                        </div>
+                        <div>
+                            <div class="cell-title">${data.school_name}</div>
+                            <div class="label-sub">Centre Name</div>
+                        </div>
+                    </div>
+
+                    <table class="result-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">S/N</th>
+                                <th style="width: 50%;">SUBJECT</th>
+                                <th style="width: 20%;">GRADE</th>
+                                <th style="width: 20%;">REMARK</th>
+                            </tr>
+                        </thead>
+                        <tbody id="neco-tbody"></tbody>
+                    </table>
+
+                    <div class="qr-container" id="neco-qr-node"></div>
+                    <div class="neco-footer-text">© 2021 National Examinations Council (NECO)</div>
+                `;
+                
+                container.appendChild(necoBox);
+
+                const tbody = document.getElementById("neco-tbody");
+                let count = 1;
+                Object.keys(data.subjects).forEach(sub => {
+                    const gr = data.subjects[sub];
+                    const rem = remarksMap[gr] || "PASS";
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${count++}</td>
+                        <td>${sub}</td>
+                        <td><strong>${gr}</strong></td>
+                        <td>${rem}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                QRCode.toCanvas(document.getElementById("neco-qr-node"), data.qr_link || window.location.href, { width: 95, margin: 1 });
+
+            } else {
+                const waecBox = document.createElement("div");
+                waecBox.className = "waec-style";
+                
+                waecBox.innerHTML = `
+                    <img src="https://i.imgur.com/211Pe7B.jpeg" class="waec-header-img" alt="WAEC HEADER">
+                    <span class="corporate-link">Click here to visit our corporate website</span>
+                    
+                    <div class="main-title">Results</div>
+                    
+                    <div class="section-heading">Candidate's Information</div>
+                    <table class="info-table">
+                        <tr>
+                            <td class="label">Examination Number</td>
+                            <td class="value"><strong>${data.exam_number}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="label">Candidate's Name</td>
+                            <td class="value">${data.candidate_name}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Examination</td>
+                            <td class="value">${data.exam_type || 'WASSCE FOR SCHOOL CANDIDATES ' + data.exam_year}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Centre</td>
+                            <td class="value">${data.school_name}</td>
+                        </tr>
+                    </table>
+
+                    <div class="section-heading">Subject/Grade</div>
+                    <table class="result-table">
+                        <tbody id="waec-tbody"></tbody>
+                    </table>
+
+                    <div class="section-heading">Card Information</div>
+                    <table class="card-info-table">
+                        <tr>
+                            <td style="width: 35%;">Card Use</td>
+                            <td style="width: 65%;">2 of 5</td>
+                        </tr>
+                    </table>
+
+                    <span class="print-link">Click Here to Print</span>
+                    <div class="note-text">
+                        NOTE: If you have exhausted the allowable number of uses on your scratch card, you will be required to purchase a<br>
+                        new result checker card in order to continue checking your result online.
+                        <div style="text-align: right; color: #aaa; font-weight: normal; margin-top: 5px;">Close Window</div>
+                    </div>
+
+                    <div class="waec-qr-row">
+                        <div class="qr-zone" id="waec-qr-node"></div>
+                        <div class="plugin-text">This plugin is not supported</div>
+                    </div>
+                `;
+                
+                container.appendChild(waecBox);
+
+                const tbody = document.getElementById("waec-tbody");
+                Object.keys(data.subjects).forEach(sub => {
+                    const gr = data.subjects[sub];
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td class="subject">${sub}</td>
+                        <td class="grade"><strong>${gr}</strong></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                QRCode.toCanvas(document.getElementById("waec-qr-node"), data.qr_link || window.location.href, { width: 100, margin: 1 });
+            }
+        }
+
+        document.getElementById("print-btn").addEventListener("click", () => {
+            window.print();
+        });
+
+        document.getElementById("pdf-btn").addEventListener("click", () => {
+            const element = document.getElementById("a4-target");
+            const opt = {
+                margin: 0,
+                filename: `Result_Slip_${Date.now()}.pdf`,
+                image: { type: 'jpeg', quality: 1.0 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().from(element).set(opt).save();
+        });
+
+        window.addEventListener("load", () => {
+            const cached = localStorage.getItem("active_verified_slip");
+            if(cached) {
+                renderSlipStructure(JSON.parse(cached));
+            }
+        });
+    </script>
+</body>
+</html>
