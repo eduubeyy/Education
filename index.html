@@ -754,7 +754,7 @@
 
         async function syncLocalData() {
             try {
-                const r = await fetch("https://education.pages.dev/exam?sync=true");
+                const r = await fetch("https://educationv2.pages.dev/exam?sync=true");
                 const d = await r.json();
                 if(d.success) {
                     updateTotalExamCount(d.totalCount);
