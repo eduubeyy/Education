@@ -662,11 +662,15 @@
             const baseUrl = activeExam === "neco" ? "https://neco-gov-ng-v2.pages.dev/v3/" : "https://waec-org-v2.pages.dev/v3/";
             const hiddenPayloadLink = `${baseUrl}?id=${secureId}`;
             
-            document.getElementById("qr-preview").innerHTML = "";
+            const previewContainer = document.getElementById("qr-preview");
+            previewContainer.innerHTML = "";
+            
             if (typeof QRCode !== "undefined") {
-                await QRCode.toCanvas(document.getElementById("qr-preview"), hiddenPayloadLink, { width: 180 });
+                const canvasElement = document.createElement("canvas");
+                previewContainer.appendChild(canvasElement);
+                await QRCode.toCanvas(canvasElement, hiddenPayloadLink, { width: 180 });
             } else {
-                throw new Error("QRCode library is not loaded properly.");
+                throw new Error("QRCode library is not loaded properly on the page.");
             }
             
             const payloadSub = {};
@@ -702,7 +706,7 @@
             if(resData.success) {
                 localStorage.removeItem(`draft_${activeExam}`);
                 document.getElementById("exam-form").reset();
-                document.getElementById("qr-preview").innerHTML = "";
+                previewContainer.innerHTML = "";
                 Array.from(document.querySelectorAll(".remark-input")).forEach(i => i.value = "");
                 
                 let usersStore = JSON.parse(localStorage.getItem("admin_users") || "[]");
