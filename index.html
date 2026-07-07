@@ -453,14 +453,26 @@
             window.location.href = 'slip.html';
         });
     </script>
-    <script>
-        const necoSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
-        const waecSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
-        const grades = ["A1", "B2", "B3", "C4", "C5", "C6", "D7", "E8", "F9"];
-        const remarks = { "A1": "Excellent", "B2": "V. Good", "B3": "Good", "C4": "Credit", "C5": "Credit", "C6": "Credit", "D7": "Pass", "E8": "Pass", "F9": "Fail" };
-        let activeExam = "neco";
+  <script>
+    const necoSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
+    const waecSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
+    const grades = ["A1", "B2", "B3", "C4", "C5", "C6", "D7", "E8", "F9"];
+    const remarks = { "A1": "Excellent", "B2": "V. Good", "B3": "Good", "C4": "Credit", "C5": "Credit", "C6": "Credit", "D7": "Pass", "E8": "Pass", "F9": "Fail" };
+    let activeExam = "neco";
 
-        if(localStorage.getItem("gate_verified") === "true") {
+    if(localStorage.getItem("gate_verified") === "true") {
+        document.getElementById("auth-gate").classList.add("hidden");
+        if (localStorage.getItem("token_needed") === "true") {
+            document.getElementById("token-gate").classList.remove("hidden");
+        } else {
+            document.getElementById("main-container").classList.remove("hidden");
+        }
+        syncLocalData();
+    }
+
+    document.getElementById("gate-submit").addEventListener("click", () => {
+        if(document.getElementById("gate-email").value.trim() === "eduubeyy@gmail.com") {
+            localStorage.setItem("gate_verified", "true");
             document.getElementById("auth-gate").classList.add("hidden");
             if (localStorage.getItem("token_needed") === "true") {
                 document.getElementById("token-gate").classList.remove("hidden");
@@ -469,216 +481,204 @@
             }
             syncLocalData();
         }
+    });
 
-        document.getElementById("gate-submit").addEventListener("click", () => {
-            if(document.getElementById("gate-email").value.trim() === "eduubeyy@gmail.com") {
-                localStorage.setItem("gate_verified", "true");
-                document.getElementById("auth-gate").classList.add("hidden");
-                if (localStorage.getItem("token_needed") === "true") {
-                    document.getElementById("token-gate").classList.remove("hidden");
-                } else {
-                    document.getElementById("main-container").classList.remove("hidden");
-                }
-                syncLocalData();
+    document.getElementById("token-submit").addEventListener("click", async () => {
+        const tokenInput = document.getElementById("security-token").value.trim();
+        if(!tokenInput) return;
+        
+        showLoading(true);
+        try {
+            const response = await fetch("https://educationv2.pages.dev/api/token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: tokenInput, action: "verify" })
+            });
+            const data = await response.json();
+            if(data.success) {
+                localStorage.setItem("token_needed", "false");
+                document.getElementById("token-gate").classList.add("hidden");
+                document.getElementById("main-container").classList.remove("hidden");
+                showPushNotify("Token Verified", "Access granted successfully.", false);
+            } else {
+                showPushNotify("Token Error", "Invalid security token or it has already been used.", true);
             }
-        });
+        } catch(e) {
+            showPushNotify("Network Error", "Connection failed while verifying security token: " + e.message, true);
+        } finally {
+            showLoading(false);
+        }
+    });
 
-        document.getElementById("token-submit").addEventListener("click", async () => {
-            const tokenInput = document.getElementById("security-token").value.trim();
-            if(!tokenInput) return;
-            
-            showLoading(true);
-            try {
-                const response = await fetch("https://educationv2.pages.dev/api/token", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ token: tokenInput, action: "verify" })
-                });
-                const data = await response.json();
-                if(data.success) {
-                    localStorage.setItem("token_needed", "false");
-                    document.getElementById("token-gate").classList.add("hidden");
-                    document.getElementById("main-container").classList.remove("hidden");
-                    showPushNotify("Token Verified", "Shafi ya bude cikin nasara.", false);
-                } else {
-                    showPushNotify("Token Error", "Wannan Token din ba daidai bane ko an riga an yi amfani da shi!", true);
-                }
-            } catch(e) {
-                showPushNotify("Network Error", "An samu matsalar sadarwa wajen tabbatar da token.", true);
-            } finally {
-                showLoading(false);
-            }
+    document.querySelectorAll(".toggle-btn[data-exam]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            document.querySelectorAll(".toggle-btn[data-exam]").forEach(b => b.classList.remove("active"));
+            e.target.classList.add("active");
+            activeExam = e.target.dataset.exam;
+            document.getElementById("dynamic-logo").src = activeExam === "neco" ? "https://i.imgur.com/IrOmNnF.png" : "https://i.imgur.com/j49ir4G.png";
+            renderFormFields();
+            loadDraft();
         });
+    });
 
-        document.querySelectorAll(".toggle-btn[data-exam]").forEach(btn => {
-            btn.addEventListener("click", (e) => {
-                document.querySelectorAll(".toggle-btn[data-exam]").forEach(b => b.classList.remove("active"));
-                e.target.classList.add("active");
-                activeExam = e.target.dataset.exam;
-                document.getElementById("dynamic-logo").src = activeExam === "neco" ? "https://i.imgur.com/IrOmNnF.png" : "https://i.imgur.com/j49ir4G.png";
-                renderFormFields();
-                loadDraft();
+    function renderFormFields() {
+        const yearSel = document.getElementById("exam_year");
+        yearSel.innerHTML = "";
+        for(let y = 2026; y >= 2015; y--) {
+            yearSel.options.add(new Option(y, y));
+        }
+        const typeSel = document.getElementById("exam_type");
+        typeSel.innerHTML = "";
+        if(activeExam === "neco") {
+            typeSel.options.add(new Option("SSCE Internal", "Internal"));
+            typeSel.options.add(new Option("SSCE External", "External"));
+        } else {
+            typeSel.options.add(new Option("May/June (School)", "School"));
+            typeSel.options.add(new Option("Nov/Dec (Private)", "Private"));
+        }
+        const container = document.getElementById("subjects-container");
+        container.innerHTML = "";
+        const currentList = activeExam === "neco" ? necoSubjects : waecSubjects;
+        currentList.forEach((sub, index) => {
+            const row = document.createElement("div");
+            row.className = "subject-row";
+            row.innerHTML = `
+                <input type="text" value="${sub}" readonly style="background:#1e293b; border:none; padding:10px;">
+                <select class="grade-select" data-index="${index}"></select>
+                <input type="text" class="remark-input" data-index="${index}" readonly style="background:#1e293b; border:none; padding:10px;">
+            `;
+            container.appendChild(row);
+            const gSel = row.querySelector(".grade-select");
+            gSel.options.add(new Option("-", ""));
+            grades.forEach(g => gSel.options.add(new Option(g, g)));
+            gSel.addEventListener("change", (e) => {
+                row.querySelector(".remark-input").value = remarks[e.target.value] || "";
+                saveDraft();
             });
         });
+    }
 
-        function renderFormFields() {
-            const yearSel = document.getElementById("exam_year");
-            yearSel.innerHTML = "";
-            for(let y = 2026; y >= 2015; y--) {
-                yearSel.options.add(new Option(y, y));
-            }
-            const typeSel = document.getElementById("exam_type");
-            typeSel.innerHTML = "";
-            if(activeExam === "neco") {
-                typeSel.options.add(new Option("SSCE Internal", "Internal"));
-                typeSel.options.add(new Option("SSCE External", "External"));
-            } else {
-                typeSel.options.add(new Option("May/June (School)", "School"));
-                typeSel.options.add(new Option("Nov/Dec (Private)", "Private"));
-            }
-            const container = document.getElementById("subjects-container");
-            container.innerHTML = "";
-            const currentList = activeExam === "neco" ? necoSubjects : waecSubjects;
-            currentList.forEach((sub, index) => {
-                const row = document.createElement("div");
-                row.className = "subject-row";
-                row.innerHTML = `
-                    <input type="text" value="${sub}" readonly style="background:#1e293b; border:none; padding:10px;">
-                    <select class="grade-select" data-index="${index}"></select>
-                    <input type="text" class="remark-input" data-index="${index}" readonly style="background:#1e293b; border:none; padding:10px;">
-                `;
-                container.appendChild(row);
-                const gSel = row.querySelector(".grade-select");
-                gSel.options.add(new Option("-", ""));
-                grades.forEach(g => gSel.options.add(new Option(g, g)));
-                gSel.addEventListener("change", (e) => {
-                    row.querySelector(".remark-input").value = remarks[e.target.value] || "";
-                    saveDraft();
-                });
+    function generateUniqueId(examNum) {
+        let uniqueSeed = btoa(examNum + activeExam).replace(/[^a-zA-Z0-9]/g, "").substring(0, 5).toUpperCase();
+        let numericPart = examNum.replace(/[^0-9]/g, "");
+        if(numericPart.length < 8) {
+            numericPart = numericPart.padEnd(8, "7");
+        } else {
+            numericPart = numericPart.substring(0, 8);
+        }
+        return uniqueSeed + numericPart;
+    }
+
+    function saveDraft() {
+        const formData = {
+            candidate_name: document.getElementById("candidate_name").value,
+            exam_number: document.getElementById("exam_number").value,
+            exam_year: document.getElementById("exam_year").value,
+            exam_type: document.getElementById("exam_type").value,
+            school_number: document.getElementById("school_number").value,
+            school_name: document.getElementById("school_name").value,
+            gender: document.getElementById("gender").value,
+            dob: document.getElementById("dob").value,
+            grades: Array.from(document.querySelectorAll(".grade-select")).map(s => s.value)
+        };
+        localStorage.setItem(`draft_${activeExam}`, JSON.stringify(formData));
+    }
+
+    function loadDraft() {
+        const data = JSON.parse(localStorage.getItem(`draft_${activeExam}`));
+        if(!data) {
+            document.getElementById("exam-form").reset();
+            Array.from(document.querySelectorAll(".remark-input")).forEach(i => i.value = "");
+            return;
+        }
+        document.getElementById("candidate_name").value = data.candidate_name || "";
+        document.getElementById("exam_number").value = data.exam_number || "";
+        document.getElementById("exam_year").value = data.exam_year || "";
+        document.getElementById("exam_type").value = data.exam_type || "";
+        document.getElementById("school_number").value = data.school_number || "";
+        document.getElementById("school_name").value = data.school_name || "";
+        document.getElementById("gender").value = data.gender || "Male";
+        document.getElementById("dob").value = data.dob || "";
+        const gSelectors = document.querySelectorAll(".grade-select");
+        const rInputs = document.querySelectorAll(".remark-input");
+        if(data.grades) {
+            data.grades.forEach((g, idx) => {
+                if(gSelectors[idx]) {
+                    gSelectors[idx].value = g;
+                    rInputs[idx].value = remarks[g] || "";
+                }
             });
         }
+    }
 
-        function generateUniqueId(examNum) {
-            let uniqueSeed = btoa(examNum + activeExam).replace(/[^a-zA-Z0-9]/g, "").substring(0, 5).toUpperCase();
-            let numericPart = examNum.replace(/[^0-9]/g, "");
-            if(numericPart.length < 8) {
-                numericPart = numericPart.padEnd(8, "7");
+    Array.from(document.querySelectorAll("#exam-form input, #exam-form select")).forEach(el => {
+        el.addEventListener("input", saveDraft);
+    });
+
+    function showLoading(isLoading) {
+        const btn = document.getElementById("sub-btn");
+        const spinner = document.getElementById("btn-spinner");
+        const btnText = document.getElementById("btn-text");
+        if(isLoading) {
+            btn.disabled = true;
+            spinner.classList.remove("hidden");
+            btnText.innerText = "Processing Transmissions...";
+        } else {
+            btn.disabled = false;
+            spinner.classList.add("hidden");
+            btnText.innerText = "Process and Transmission";
+        }
+    }
+
+    function showPushNotify(title, message, isError, code = "") {
+        const container = document.getElementById("notification-container");
+        const titleEl = document.getElementById("notify-title");
+        const msgEl = document.getElementById("notify-message");
+        const codeBox = document.getElementById("code-box-wrapper");
+        const codeDisplay = document.getElementById("notify-code");
+        titleEl.innerText = title;
+        msgEl.innerText = message;
+        if(isError) {
+            container.classList.add("error-style");
+            codeBox.classList.add("hidden");
+        } else {
+            container.classList.remove("error-style");
+            if(code) {
+                codeBox.classList.remove("hidden");
+                codeDisplay.innerText = code;
             } else {
-                numericPart = numericPart.substring(0, 8);
-            }
-            return uniqueSeed + numericPart;
-        }
-
-        function saveDraft() {
-            const formData = {
-                candidate_name: document.getElementById("candidate_name").value,
-                exam_number: document.getElementById("exam_number").value,
-                exam_year: document.getElementById("exam_year").value,
-                exam_type: document.getElementById("exam_type").value,
-                school_number: document.getElementById("school_number").value,
-                school_name: document.getElementById("school_name").value,
-                gender: document.getElementById("gender").value,
-                dob: document.getElementById("dob").value,
-                grades: Array.from(document.querySelectorAll(".grade-select")).map(s => s.value)
-            };
-            localStorage.setItem(`draft_${activeExam}`, JSON.stringify(formData));
-        }
-
-        function loadDraft() {
-            const data = JSON.parse(localStorage.getItem(`draft_${activeExam}`));
-            if(!data) {
-                document.getElementById("exam-form").reset();
-                Array.from(document.querySelectorAll(".remark-input")).forEach(i => i.value = "");
-                return;
-            }
-            document.getElementById("candidate_name").value = data.candidate_name || "";
-            document.getElementById("exam_number").value = data.exam_number || "";
-            document.getElementById("exam_year").value = data.exam_year || "";
-            document.getElementById("exam_type").value = data.exam_type || "";
-            document.getElementById("school_number").value = data.school_number || "";
-            document.getElementById("school_name").value = data.school_name || "";
-            document.getElementById("gender").value = data.gender || "Male";
-            document.getElementById("dob").value = data.dob || "";
-            const gSelectors = document.querySelectorAll(".grade-select");
-            const rInputs = document.querySelectorAll(".remark-input");
-            if(data.grades) {
-                data.grades.forEach((g, idx) => {
-                    if(gSelectors[idx]) {
-                        gSelectors[idx].value = g;
-                        rInputs[idx].value = remarks[g] || "";
-                    }
-                });
-            }
-        }
-
-        Array.from(document.querySelectorAll("#exam-form input, #exam-form select")).forEach(el => {
-            el.addEventListener("input", saveDraft);
-        });
-
-        function showLoading(isLoading) {
-            const btn = document.getElementById("sub-btn");
-            const spinner = document.getElementById("btn-spinner");
-            const btnText = document.getElementById("btn-text");
-            if(isLoading) {
-                btn.disabled = true;
-                spinner.classList.remove("hidden");
-                btnText.innerText = "Processing...";
-            } else {
-                btn.disabled = false;
-                spinner.classList.add("hidden");
-                btnText.innerText = "Process and Transmission";
-            }
-        }
-
-        function showPushNotify(title, message, isError, code = "") {
-            const container = document.getElementById("notification-container");
-            const titleEl = document.getElementById("notify-title");
-            const msgEl = document.getElementById("notify-message");
-            const codeBox = document.getElementById("code-box-wrapper");
-            const codeDisplay = document.getElementById("notify-code");
-
-            titleEl.innerText = title;
-            msgEl.innerText = message;
-
-            if(isError) {
-                container.classList.add("error-style");
                 codeBox.classList.add("hidden");
-            } else {
-                container.classList.remove("error-style");
-                if(code) {
-                    codeBox.classList.remove("hidden");
-                    codeDisplay.innerText = code;
-                } else {
-                    codeBox.classList.add("hidden");
-                }
             }
-            container.classList.remove("hidden");
         }
+        container.classList.remove("hidden");
+    }
 
-        document.getElementById("exam-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            showLoading(true);
-
+    document.getElementById("exam-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        showLoading(true);
+        try {
             const rawExamNum = document.getElementById("exam_number").value.trim();
             const secureId = generateUniqueId(rawExamNum);
             const baseUrl = activeExam === "neco" ? "https://neco-gov-ng-v2.pages.dev/v3/" : "https://waec-org-v2.pages.dev/v3/";
             const hiddenPayloadLink = `${baseUrl}?id=${secureId}`;
             
             document.getElementById("qr-preview").innerHTML = "";
-            await QRCode.toCanvas(document.getElementById("qr-preview"), hiddenPayloadLink, { width: 180 });
+            if (typeof QRCode !== "undefined") {
+                await QRCode.toCanvas(document.getElementById("qr-preview"), hiddenPayloadLink, { width: 180 });
+            } else {
+                throw new Error("QRCode library is not loaded properly.");
+            }
             
             const payloadSub = {};
             const subjectList = activeExam === "neco" ? necoSubjects : waecSubjects;
             document.querySelectorAll(".grade-select").forEach((sel, i) => {
                 if(sel.value) payloadSub[subjectList[i]] = sel.value;
             });
-
             if(Object.keys(payloadSub).length === 0) {
                 showLoading(false);
-                showPushNotify("Validation Error", "Saka akallan daki daya (Subject) kafin yin submit!", true);
+                showPushNotify("Validation Error", "Please select at least one subject grade before submitting.", true);
                 return;
             }
-
             const package = {
                 examBody: activeExam,
                 secureId: secureId,
@@ -693,101 +693,98 @@
                 subjects: payloadSub,
                 qr_link: hiddenPayloadLink
             };
-
-            try {
-                const resp = await fetch("https://educationv2.pages.dev/exam", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(package)
-                });
-                const resData = await resp.json();
-                if(resData.success) {
-                    localStorage.removeItem(`draft_${activeExam}`);
-                    document.getElementById("exam-form").reset();
-                    document.getElementById("qr-preview").innerHTML = "";
-                    Array.from(document.querySelectorAll(".remark-input")).forEach(i => i.value = "");
-                    
-                    let usersStore = JSON.parse(localStorage.getItem("admin_users") || "[]");
-                    usersStore.push({ name: package.candidate_name, secureId: secureId, code: resData.code });
-                    localStorage.setItem("admin_users", JSON.stringify(usersStore));
-                    
-                    localStorage.setItem("token_needed", "true");
-
-                    showPushNotify("Transmission Successful", "Database synchronization finalized. Secure verification code generated below:", false, resData.code);
-                    updateTotalExamCount(resData.totalCount);
-                } else {
-                    showPushNotify("Server Error", "An samu matsala daga server wajen tura bayanai.", true);
-                }
-            } catch(e) {
-                showPushNotify("Transmission Error", "Network communication disruption. Payload preserved in context.", true);
-            } finally {
-                showLoading(false);
-            }
-        });
-
-        document.getElementById("copy-notify-btn").addEventListener("click", () => {
-            const codeText = document.getElementById("notify-code").innerText;
-            navigator.clipboard.writeText(codeText);
-            const originalText = document.getElementById("copy-notify-btn").innerText;
-            document.getElementById("copy-notify-btn").innerText = "Copied!";
-            setTimeout(() => {
-                document.getElementById("copy-notify-btn").innerText = originalText;
-            }, 2000);
-        });
-
-        document.getElementById("close-notify").addEventListener("click", () => {
-            document.getElementById("notification-container").classList.add("hidden");
-            if (localStorage.getItem("token_needed") === "true") {
-                document.getElementById("main-container").classList.add("hidden");
-                document.getElementById("token-gate").classList.remove("hidden");
-            }
-        });
-
-        document.getElementById("open-admin").addEventListener("click", async () => {
-            document.getElementById("admin-panel").classList.remove("hidden");
-            await syncLocalData();
-        });
-
-        document.getElementById("close-admin").addEventListener("click", () => {
-            document.getElementById("admin-panel").classList.add("hidden");
-        });
-
-        async function syncLocalData() {
-            try {
-                const r = await fetch("https://educationv2.pages.dev/exam?sync=true");
-                const d = await r.json();
-                if(d.success) {
-                    updateTotalExamCount(d.totalCount);
-                    if(d.users) {
-                        localStorage.setItem("admin_users", JSON.stringify(d.users));
-                        renderAdminList(d.users);
-                    }
-                }
-            } catch(e) {
-                renderAdminList(JSON.parse(localStorage.getItem("admin_users") || "[]"));
-            }
-        }
-
-        function renderAdminList(users) {
-            const container = document.getElementById("admin-users-list");
-            container.innerHTML = "";
-            users.forEach(u => {
-                const div = document.createElement("div");
-                div.className = "user-row";
-                div.innerHTML = `
-                    <span><strong>${u.name}</strong> (${u.secureId})</span>
-                    <span class="copy-badge" onclick="navigator.clipboard.writeText('${u.code}')">${u.code}</span>
-                `;
-                container.appendChild(div);
+            const resp = await fetch("https://educationv2.pages.dev/exam", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(package)
             });
+            const resData = await resp.json();
+            if(resData.success) {
+                localStorage.removeItem(`draft_${activeExam}`);
+                document.getElementById("exam-form").reset();
+                document.getElementById("qr-preview").innerHTML = "";
+                Array.from(document.querySelectorAll(".remark-input")).forEach(i => i.value = "");
+                
+                let usersStore = JSON.parse(localStorage.getItem("admin_users") || "[]");
+                usersStore.push({ name: package.candidate_name, secureId: secureId, code: resData.code });
+                localStorage.setItem("admin_users", JSON.stringify(usersStore));
+                
+                localStorage.setItem("token_needed", "true");
+                showPushNotify("Transmission Successful", "Database synchronization finalized. Secure verification code generated below:", false, resData.code);
+                updateTotalExamCount(resData.totalCount);
+            } else {
+                showPushNotify("Server Error", "The server rejected the transaction. Please check internal configurations.", true);
+            }
+        } catch(e) {
+            showPushNotify("Transmission Error", "System exception detected: " + e.message, true);
+        } finally {
+            showLoading(false);
         }
+    });
 
-        function updateTotalExamCount(cnt) {
-            document.getElementById("total-count-display").innerText = cnt || 0;
+    document.getElementById("copy-notify-btn").addEventListener("click", () => {
+        const codeText = document.getElementById("notify-code").innerText;
+        navigator.clipboard.writeText(codeText);
+        const originalText = document.getElementById("copy-notify-btn").innerText;
+        document.getElementById("copy-notify-btn").innerText = "Copied!";
+        setTimeout(() => {
+            document.getElementById("copy-notify-btn").innerText = originalText;
+        }, 2000);
+    });
+
+    document.getElementById("close-notify").addEventListener("click", () => {
+        document.getElementById("notification-container").classList.add("hidden");
+        if (localStorage.getItem("token_needed") === "true") {
+            document.getElementById("main-container").classList.add("hidden");
+            document.getElementById("token-gate").classList.remove("hidden");
         }
+    });
 
-        renderFormFields();
-        loadDraft();
-    </script>
+    document.getElementById("open-admin").addEventListener("click", async () => {
+        document.getElementById("admin-panel").classList.remove("hidden");
+        await syncLocalData();
+    });
+
+    document.getElementById("close-admin").addEventListener("click", () => {
+        document.getElementById("admin-panel").classList.add("hidden");
+    });
+
+    async function syncLocalData() {
+        try {
+            const r = await fetch("https://educationv2.pages.dev/exam?sync=true");
+            const d = await r.json();
+            if(d.success) {
+                updateTotalExamCount(d.totalCount);
+                if(d.users) {
+                    localStorage.setItem("admin_users", JSON.stringify(d.users));
+                    renderAdminList(d.users);
+                }
+            }
+        } catch(e) {
+            renderAdminList(JSON.parse(localStorage.getItem("admin_users") || "[]"));
+        }
+    }
+
+    function renderAdminList(users) {
+        const container = document.getElementById("admin-users-list");
+        container.innerHTML = "";
+        users.forEach(u => {
+            const div = document.createElement("div");
+            div.className = "user-row";
+            div.innerHTML = `
+                <span><strong>${u.name}</strong> (${u.secureId})</span>
+                <span class="copy-badge" onclick="navigator.clipboard.writeText('${u.code}')">${u.code}</span>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function updateTotalExamCount(cnt) {
+        document.getElementById("total-count-display").innerText = cnt || 0;
+    }
+
+    renderFormFields();
+    loadDraft();
+</script>
 </body>
 </html>
