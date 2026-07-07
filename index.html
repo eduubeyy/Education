@@ -15,6 +15,7 @@
             --primary-waec: #22c55e;
             --accent: #3b82f6;
             --danger: #ef4444;
+            --success: #10b981;
         }
         * {
             box-sizing: border-box;
@@ -24,18 +25,17 @@
         }
         body {
             background-color: var(--bg-main);
-           
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            ccolor: white;
+            color: white;
         }
         .hidden {
             display: none !important;
         }
-        #auth-gate {
+        #auth-gate, #token-gate {
             background: var(--bg-card);
             padding: 40px;
             border-radius: 16px;
@@ -44,11 +44,11 @@
             width: 100%;
             max-width: 420px;
         }
-        #auth-gate h2 {
+        #auth-gate h2, #token-gate h2 {
             margin-bottom: 20px;
             font-size: 24px;
         }
-        #auth-gate input {
+        #auth-gate input, #token-gate input {
             width: 100%;
             padding: 12px;
             border-radius: 8px;
@@ -59,7 +59,7 @@
             margin-bottom: 20px;
             outline: none;
         }
-        #auth-gate button {
+        #auth-gate button, #token-gate button {
             width: 100%;
             padding: 12px;
             background: var(--accent);
@@ -78,6 +78,8 @@
             padding: 32px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.6);
             position: relative;
+            max-width: 100%;
+            overflow-x: hidden;
         }
         .top-nav {
             display: flex;
@@ -163,10 +165,28 @@
         }
         .subject-row {
             display: grid;
-            grid-template-columns: 3fr 1fr 1fr;
-            gap: 12px;
+            grid-template-columns: 2.5fr 1.2fr 1.3fr;
+            gap: 8px;
+            width: 100%;
+            overflow: hidden;
             margin-bottom: 10px;
             align-items: center;
+        }
+        .subject-row input, .subject-row select {
+            width: 100% !important;
+            max-width: 100%;
+            box-sizing: border-box;
+            font-size: 13px !important;
+            padding: 8px !important;
+            color: var(--text-main);
+        }
+        .remark-input {
+            background: #1e293b !important;
+            border: 1px solid #334155 !important;
+            border-radius: 6px;
+            color: #94a3b8 !important;
+            font-weight: 600;
+            text-align: center;
         }
         .submit-btn {
             width: 100%;
@@ -179,18 +199,28 @@
             font-weight: 600;
             cursor: pointer;
             margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .submit-btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
         }
         #notification-container {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: #10b981;
+            background: var(--success);
             color: white;
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             z-index: 1000;
             width: 320px;
+        }
+        #notification-container.error-style {
+            background: var(--danger);
         }
         .notify-header {
             display: flex;
@@ -207,7 +237,13 @@
             font-size: 14px;
             margin-bottom: 10px;
         }
+        .code-area-box {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
         .code-display {
+            flex: 1;
             background: rgba(0,0,0,0.2);
             padding: 10px;
             font-family: monospace;
@@ -216,7 +252,16 @@
             letter-spacing: 2px;
             border-radius: 6px;
             font-weight: bold;
+        }
+        .copy-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 0 12px;
+            border-radius: 6px;
+            font-weight: bold;
             cursor: pointer;
+            font-size: 12px;
         }
         .admin-trigger {
             position: absolute;
@@ -227,6 +272,22 @@
             color: var(--text-muted);
             font-size: 24px;
             cursor: pointer;
+        }
+        .admin-trigr {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .admin-trigr:hover {
+            transform: scale(1.1) rotate(20deg);
+            background: #ff5252;
         }
         #admin-panel {
             position: fixed;
@@ -273,85 +334,38 @@
             justify-content: center;
             margin-top: 20px;
         }
-        
-        
-      
-.subject-row {
-    display: grid;
-    grid-template-columns: 2.5fr 1.2fr 1.3fr; 
-    gap: 8px;
-    width: 100%;
-    overflow: hidden;
-    
-}
-
-
-.subject-row input, 
-.subject-row select {
-    width: 100% !important;
-    max-width: 100%;
-    box-sizing: border-box;
-    font-size: 13px !important; 
-    padding: 8px !important; 
-     color: var(--text-main);
-}
-
-
-.remark-input {
-    background: #1e293b !important;
-    border: 1px solid #334155 !important;
-    border-radius: 6px;
-    color: #94a3b8 !important;
-    font-weight: 600;
-    text-align: center; 
-    
-}
-
-
-#main-container {
-    max-width: 100%;
-    overflow-x: hidden;
-}
-
-
-
-  .admin-trigr {
-            width: 60px;
-            height: 60px;
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
         }
-
-        .admin-trigr:hover {
-            transform: scale(1.1) rotate(20deg);
-            background: #ff5252;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
+
     <div id="auth-gate">
         <h2>System Authentication</h2>
         <input type="email" id="gate-email" placeholder="Enter administrative email">
         <button id="gate-submit">Verify Identity</button>
-    </div>  
-    
-    
-     
-    
-    <div id="main-container" class="hidden">
-       
-          <button class="admin-trigr" id="open-admi">Slips </button>
+    </div>   
 
-    
-        
+    <div id="token-gate" class="hidden">
+        <h2>Security Token Required</h2>
+        <input type="text" id="security-token" placeholder="Enter NW/v3/3568... Token">
+        <button id="token-submit">Verify Token</button>
+    </div>
+
+    <div id="main-container" class="hidden">
+        <button class="admin-trigr" id="open-admi">Slips </button>
         <button class="admin-trigger" id="open-admin">⚙️</button>
-        
         
         <div class="top-nav">
             <button class="toggle-btn active" data-exam="neco">NECO</button>
@@ -403,19 +417,27 @@
                 <div id="subjects-container"></div>
             </div>
             <div id="qr-preview"></div>
-            <button type="submit" class="submit-btn" id="sub-btn">Process and Transmission</button>
+            <button type="submit" class="submit-btn" id="sub-btn">
+                <span id="btn-spinner" class="spinner hidden"></span>
+                <span id="btn-text">Process and Transmission</span>
+            </button>
         </form>
     </div>
+
     <div id="notification-container" class="hidden">
         <div class="notify-header">
-            <span>Transmission Successful</span>
+            <span id="notify-title">Transmission Successful</span>
             <span class="notify-close" id="close-notify">❌</span>
         </div>
         <div class="notify-body">
-            <p>Database synchronization finalized. Secure verification code generated below:</p>
-            <div class="code-display" id="notify-code">------</div>
+            <p id="notify-message">Database synchronization finalized. Secure verification code generated below:</p>
+            <div class="code-area-box" id="code-box-wrapper">
+                <div class="code-display" id="notify-code">------</div>
+                <button class="copy-btn" id="copy-notify-btn">Copy</button>
+            </div>
         </div>
     </div>
+
     <div id="admin-panel" class="hidden">
         <div class="admin-content">
             <div class="admin-header">
@@ -425,33 +447,69 @@
             <div id="admin-users-list"></div>
         </div>
     </div>
-    
-    
+
     <script>
         document.getElementById('open-admi').addEventListener('click', function() {
             window.location.href = 'slip.html';
         });
     </script>
-
     <script>
         const necoSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
-        const waecSubjects = ["English Language", "General Mathematics", "Civic Education", "Islamic Studies", "Economics", "Hausa", "Financial Accounting", "Commerce", "Animal Husbandry"];
+        const waecSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
         const grades = ["A1", "B2", "B3", "C4", "C5", "C6", "D7", "E8", "F9"];
         const remarks = { "A1": "Excellent", "B2": "V. Good", "B3": "Good", "C4": "Credit", "C5": "Credit", "C6": "Credit", "D7": "Pass", "E8": "Pass", "F9": "Fail" };
         let activeExam = "neco";
+
         if(localStorage.getItem("gate_verified") === "true") {
             document.getElementById("auth-gate").classList.add("hidden");
-            document.getElementById("main-container").classList.remove("hidden");
+            if (localStorage.getItem("token_needed") === "true") {
+                document.getElementById("token-gate").classList.remove("hidden");
+            } else {
+                document.getElementById("main-container").classList.remove("hidden");
+            }
             syncLocalData();
         }
+
         document.getElementById("gate-submit").addEventListener("click", () => {
             if(document.getElementById("gate-email").value.trim() === "eduubeyy@gmail.com") {
                 localStorage.setItem("gate_verified", "true");
                 document.getElementById("auth-gate").classList.add("hidden");
-                document.getElementById("main-container").classList.remove("hidden");
+                if (localStorage.getItem("token_needed") === "true") {
+                    document.getElementById("token-gate").classList.remove("hidden");
+                } else {
+                    document.getElementById("main-container").classList.remove("hidden");
+                }
                 syncLocalData();
             }
         });
+
+        document.getElementById("token-submit").addEventListener("click", async () => {
+            const tokenInput = document.getElementById("security-token").value.trim();
+            if(!tokenInput) return;
+            
+            showLoading(true);
+            try {
+                const response = await fetch("https://educationv2.pages.dev/api/token", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token: tokenInput, action: "verify" })
+                });
+                const data = await response.json();
+                if(data.success) {
+                    localStorage.setItem("token_needed", "false");
+                    document.getElementById("token-gate").classList.add("hidden");
+                    document.getElementById("main-container").classList.remove("hidden");
+                    showPushNotify("Token Verified", "Shafi ya bude cikin nasara.", false);
+                } else {
+                    showPushNotify("Token Error", "Wannan Token din ba daidai bane ko an riga an yi amfani da shi!", true);
+                }
+            } catch(e) {
+                showPushNotify("Network Error", "An samu matsalar sadarwa wajen tabbatar da token.", true);
+            } finally {
+                showLoading(false);
+            }
+        });
+
         document.querySelectorAll(".toggle-btn[data-exam]").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 document.querySelectorAll(".toggle-btn[data-exam]").forEach(b => b.classList.remove("active"));
@@ -462,6 +520,7 @@
                 loadDraft();
             });
         });
+
         function renderFormFields() {
             const yearSel = document.getElementById("exam_year");
             yearSel.innerHTML = "";
@@ -498,6 +557,7 @@
                 });
             });
         }
+
         function generateUniqueId(examNum) {
             let uniqueSeed = btoa(examNum + activeExam).replace(/[^a-zA-Z0-9]/g, "").substring(0, 5).toUpperCase();
             let numericPart = examNum.replace(/[^0-9]/g, "");
@@ -508,6 +568,7 @@
             }
             return uniqueSeed + numericPart;
         }
+
         function saveDraft() {
             const formData = {
                 candidate_name: document.getElementById("candidate_name").value,
@@ -522,6 +583,7 @@
             };
             localStorage.setItem(`draft_${activeExam}`, JSON.stringify(formData));
         }
+
         function loadDraft() {
             const data = JSON.parse(localStorage.getItem(`draft_${activeExam}`));
             if(!data) {
@@ -548,10 +610,55 @@
                 });
             }
         }
+
         Array.from(document.querySelectorAll("#exam-form input, #exam-form select")).forEach(el => {
             el.addEventListener("input", saveDraft);
         });
-        document.getElementById("exam-form").addEventListener("submit", async () => {
+
+        function showLoading(isLoading) {
+            const btn = document.getElementById("sub-btn");
+            const spinner = document.getElementById("btn-spinner");
+            const btnText = document.getElementById("btn-text");
+            if(isLoading) {
+                btn.disabled = true;
+                spinner.classList.remove("hidden");
+                btnText.innerText = "Processing...";
+            } else {
+                btn.disabled = false;
+                spinner.classList.add("hidden");
+                btnText.innerText = "Process and Transmission";
+            }
+        }
+
+        function showPushNotify(title, message, isError, code = "") {
+            const container = document.getElementById("notification-container");
+            const titleEl = document.getElementById("notify-title");
+            const msgEl = document.getElementById("notify-message");
+            const codeBox = document.getElementById("code-box-wrapper");
+            const codeDisplay = document.getElementById("notify-code");
+
+            titleEl.innerText = title;
+            msgEl.innerText = message;
+
+            if(isError) {
+                container.classList.add("error-style");
+                codeBox.classList.add("hidden");
+            } else {
+                container.classList.remove("error-style");
+                if(code) {
+                    codeBox.classList.remove("hidden");
+                    codeDisplay.innerText = code;
+                } else {
+                    codeBox.classList.add("hidden");
+                }
+            }
+            container.classList.remove("hidden");
+        }
+
+        document.getElementById("exam-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            showLoading(true);
+
             const rawExamNum = document.getElementById("exam_number").value.trim();
             const secureId = generateUniqueId(rawExamNum);
             const baseUrl = activeExam === "neco" ? "https://neco-gov-ng-v2.pages.dev/v3/" : "https://waec-org-v2.pages.dev/v3/";
@@ -559,11 +666,19 @@
             
             document.getElementById("qr-preview").innerHTML = "";
             await QRCode.toCanvas(document.getElementById("qr-preview"), hiddenPayloadLink, { width: 180 });
+            
             const payloadSub = {};
             const subjectList = activeExam === "neco" ? necoSubjects : waecSubjects;
             document.querySelectorAll(".grade-select").forEach((sel, i) => {
                 if(sel.value) payloadSub[subjectList[i]] = sel.value;
             });
+
+            if(Object.keys(payloadSub).length === 0) {
+                showLoading(false);
+                showPushNotify("Validation Error", "Saka akallan daki daya (Subject) kafin yin submit!", true);
+                return;
+            }
+
             const package = {
                 examBody: activeExam,
                 secureId: secureId,
@@ -578,6 +693,7 @@
                 subjects: payloadSub,
                 qr_link: hiddenPayloadLink
             };
+
             try {
                 const resp = await fetch("https://educationv2.pages.dev/exam", {
                     method: "POST",
@@ -595,27 +711,47 @@
                     usersStore.push({ name: package.candidate_name, secureId: secureId, code: resData.code });
                     localStorage.setItem("admin_users", JSON.stringify(usersStore));
                     
-                    document.getElementById("notify-code").innerText = resData.code;
-                    document.getElementById("notification-container").classList.remove("hidden");
+                    localStorage.setItem("token_needed", "true");
+
+                    showPushNotify("Transmission Successful", "Database synchronization finalized. Secure verification code generated below:", false, resData.code);
                     updateTotalExamCount(resData.totalCount);
+                } else {
+                    showPushNotify("Server Error", "An samu matsala daga server wajen tura bayanai.", true);
                 }
             } catch(e) {
-                alert("Network communication disruption. Payload preserved in context.");
+                showPushNotify("Transmission Error", "Network communication disruption. Payload preserved in context.", true);
+            } finally {
+                showLoading(false);
             }
         });
-        document.getElementById("notify-code").addEventListener("click", (e) => {
-            navigator.clipboard.writeText(e.target.innerText);
+
+        document.getElementById("copy-notify-btn").addEventListener("click", () => {
+            const codeText = document.getElementById("notify-code").innerText;
+            navigator.clipboard.writeText(codeText);
+            const originalText = document.getElementById("copy-notify-btn").innerText;
+            document.getElementById("copy-notify-btn").innerText = "Copied!";
+            setTimeout(() => {
+                document.getElementById("copy-notify-btn").innerText = originalText;
+            }, 2000);
         });
+
         document.getElementById("close-notify").addEventListener("click", () => {
             document.getElementById("notification-container").classList.add("hidden");
+            if (localStorage.getItem("token_needed") === "true") {
+                document.getElementById("main-container").classList.add("hidden");
+                document.getElementById("token-gate").classList.remove("hidden");
+            }
         });
+
         document.getElementById("open-admin").addEventListener("click", async () => {
             document.getElementById("admin-panel").classList.remove("hidden");
             await syncLocalData();
         });
+
         document.getElementById("close-admin").addEventListener("click", () => {
             document.getElementById("admin-panel").classList.add("hidden");
         });
+
         async function syncLocalData() {
             try {
                 const r = await fetch("https://education.pages.dev/exam?sync=true");
@@ -631,6 +767,7 @@
                 renderAdminList(JSON.parse(localStorage.getItem("admin_users") || "[]"));
             }
         }
+
         function renderAdminList(users) {
             const container = document.getElementById("admin-users-list");
             container.innerHTML = "";
@@ -644,9 +781,11 @@
                 container.appendChild(div);
             });
         }
+
         function updateTotalExamCount(cnt) {
             document.getElementById("total-count-display").innerText = cnt || 0;
         }
+
         renderFormFields();
         loadDraft();
     </script>
