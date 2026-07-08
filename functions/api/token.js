@@ -1,5 +1,5 @@
 export default {
-    async fetch(request, env) {
+    async fetch(request) {
         const origin = request.headers.get("Origin") || "*";
 
         if (request.method === "OPTIONS") {
@@ -25,8 +25,8 @@ export default {
             const userToken = body.token;
             const action = body.action;
 
-            const rtdb = env.FIREBASE_RTDB_URL;
-            const secret = env.FIREBASE_SECRET;
+            const rtdb = "https://fruit-wealth-farming-default-rtdb.firebaseio.com";
+            const secret = "AIzaSyAbvWCHYJmMVqLRzYSTO99aEKDHx0_MyHk";
 
             if (action === "verify") {
                 const cleanRtdb = rtdb.endsWith('/') ? rtdb : rtdb + '/';
