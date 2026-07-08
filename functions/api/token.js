@@ -14,23 +14,28 @@ export default {
             });
         }
 
+        const corsHeaders = {
+            "Access-Control-Allow-Origin": origin,
+            "Content-Type": "application/json"
+        };
+
         if (request.method !== "POST") {
             return new Response(JSON.stringify({ success: false, error: "Method not allowed" }), {
                 status: 405,
-                headers: { 
-                    "Content-Type": "application/json", 
-                    "Access-Control-Allow-Origin": origin 
-                }
+                headers: corsHeaders
             });
         }
 
         try {
-            const corsHeaders = {
-                "Access-Control-Allow-Origin": origin,
-                "Content-Type": "application/json"
-            };
-
-            const body = await request.json();
+            let body;
+            try {
+                body = await request.json();
+            } catch(parseErr) {
+                return new Response(JSON.stringify({ success: false, error: "Invalid JSON in request body" }), {
+                    status: 400,
+                    headers: corsHeaders
+                });
+            }
 
             if (!body.password || body.password !== "@haruna66") {
                 return new Response(JSON.stringify({ success: false, error: "Invalid access password" }), {
@@ -53,18 +58,20 @@ export default {
             }
 
             if (action === "verify") {
-                const url = `${rtdbBase}/tokens.json?auth=${secret}`;
+                const url = rtdbBase + "/tokens.json?auth=" + secret;
                 const response = await fetch(url);
+                
                 if (!response.ok) {
-                    return new Response(JSON.stringify({ success: false, error: "Token database unavailable" }), {
+                    return new Response(JSON.stringify({ success: false, error: "Token database unavailable with status: " + response.status }), {
                         status: 500,
                         headers: corsHeaders
                     });
                 }
+                
                 const tokensData = await response.json();
 
                 let tokenKey = null;
-                if (tokensData) {
+                if (tokensData && typeof tokensData === "object") {
                     for (const key in tokensData) {
                         if (tokensData[key] === userToken) {
                             tokenKey = key;
@@ -74,18 +81,18 @@ export default {
                 }
 
                 if (tokenKey) {
-                    const deleteUrl = `${rtdbBase}/tokens/${tokenKey}.json?auth=${secret}`;
+                    const deleteUrl = rtdbBase + "/tokens/" + tokenKey + ".json?auth=" + secret;
                     await fetch(deleteUrl, { method: "DELETE" });
 
                     const newToken = "NW/v3/3568" + Math.floor(100000 + Math.random() * 900000).toString();
-                    const pushUrl = `${rtdbBase}/tokens.json?auth=${secret}`;
+                    const pushUrl = rtdbBase + "/tokens.json?auth=" + secret;
                     await fetch(pushUrl, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(newToken)
                     });
 
-                    const checkTokenGate = `${rtdbBase}/token_gate.json?auth=${secret}`;
+                    const checkTokenGate = rtdbBase + "/token_gate.json?auth=" + secret;
                     await fetch(checkTokenGate, {
                         method: "PUT",
                         headers: { "Content-Type": "application/json" },
@@ -105,7 +112,7 @@ export default {
                         success: false, 
                         error: "Invalid or expired token" 
                     }), {
-                        status: 400,
+                        status: 200,
                         headers: corsHeaders
                     });
                 }
@@ -113,14 +120,21 @@ export default {
 
             if (action === "generate") {
                 const newToken = "NW/v3/3568" + Math.floor(100000 + Math.random() * 900000).toString();
-                const pushUrl = `${rtdbBase}/tokens.json?auth=${secret}`;
-                await fetch(pushUrl, {
+                const pushUrl = rtdbBase + "/tokens.json?auth=" + secret;
+                const pushResp = await fetch(pushUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(newToken)
                 });
 
-                const checkTokenGate = `${rtdbBase}/token_gate.json?auth=${secret}`;
+                if (!pushResp.ok) {
+                    return new Response(JSON.stringify({ success: false, error: "Failed to generate token" }), {
+                        status: 500,
+                        headers: corsHeaders
+                    });
+                }
+
+                const checkTokenGate = rtdbBase + "/token_gate.json?auth=" + secret;
                 await fetch(checkTokenGate, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
@@ -138,7 +152,7 @@ export default {
             }
 
             if (action === "check_gate") {
-                const gateUrl = `${rtdbBase}/token_gate.json?auth=${secret}`;
+                const gateUrl = rtdbBase + "/token_gate.json?auth=" + secret;
                 const gateResp = await fetch(gateUrl);
                 let gateStatus = "false";
                 if (gateResp.ok) {
@@ -153,7 +167,7 @@ export default {
                 });
             }
 
-            return new Response(JSON.stringify({ success: false, error: "Invalid action" }), {
+            return new Response(JSON.stringify({ success: false, error: "Invalid action: " + action }), {
                 status: 400,
                 headers: corsHeaders
             });
@@ -161,10 +175,7 @@ export default {
         } catch (e) {
             return new Response(JSON.stringify({ success: false, error: "Server error: " + e.message }), {
                 status: 500,
-                headers: { 
-                    "Content-Type": "application/json", 
-                    "Access-Control-Allow-Origin": origin 
-                }
+                headers: corsHeaders
             });
         }
     }
