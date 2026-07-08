@@ -1,5 +1,5 @@
 export default {
-    async fetch(request) {
+    async fetch(request, env) {
         const origin = request.headers.get("Origin") || "*";
 
         if (request.method === "OPTIONS") {
@@ -26,7 +26,7 @@ export default {
             const action = body.action;
 
             const rtdb = "https://fruit-wealth-farming-default-rtdb.firebaseio.com";
-            const secret = "AIzaSyAbvWCHYJmMVqLRzYSTO99aEKDHx0_MyHk";
+            const secret = env.FIREBASE_SECRET;
 
             if (action === "verify") {
                 const cleanRtdb = rtdb.endsWith('/') ? rtdb : rtdb + '/';
@@ -77,4 +77,4 @@ export default {
             });
         }
     }
-};
+}
