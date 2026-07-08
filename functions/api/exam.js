@@ -23,7 +23,7 @@ export default {
         const secret = env.FIREBASE_SECRET || "";
 
         if (!rtdb || !secret) {
-            return new Response(JSON.stringify({ success: false, error: "Server configuration error" }), {
+            return new Response(JSON.stringify({ success: false, error: "Server configuration error - missing database credentials" }), {
                 status: 500,
                 headers: corsHeaders
             });
@@ -31,30 +31,52 @@ export default {
 
         if (request.method === "GET") {
             try {
-                const lookupUrl = `${rtdb}/Exam_Data.json?auth=${secret}`;
+                const lookupUrl = rtdb + "/Exam_Data.json?auth=" + secret;
                 const fetchResp = await fetch(lookupUrl);
                 if (!fetchResp.ok) {
-                    return new Response(JSON.stringify({ success: false, error: "Database fetch failed" }), {
+                    return new Response(JSON.stringify({ success: false, error: "Database fetch failed with status: " + fetchResp.status }), {
                         status: 500,
                         headers: corsHeaders
                     });
                 }
-                const dbData = await fetchResp.json() || {};
+                const dbData = await fetchResp.json();
+                if (!dbData) {
+                    return new Response(JSON.stringify({ success: true, totalCount: 0, users: [] }), {
+                        status: 200,
+                        headers: corsHeaders
+                    });
+                }
                 
-                const total = dbData.Total_Exam ? (dbData.Total_Exam.count || 0) : 0;
+                let total = 0;
+                if (dbData.Total_Exam && dbData.Total_Exam.count) {
+                    total = dbData.Total_Exam.count;
+                }
+                
                 const flatUsers = [];
                 
-                ["Neco", "Waec"].forEach(body => {
-                    if (dbData[body]) {
-                        Object.keys(dbData[body]).forEach(sid => {
+                if (dbData.Neco) {
+                    Object.keys(dbData.Neco).forEach(function(sid) {
+                        if (sid !== "count") {
                             flatUsers.push({
-                                name: dbData[body][sid].candidate_name || "",
+                                name: dbData.Neco[sid].candidate_name || "",
                                 secureId: sid,
-                                code: dbData[body][sid].success_code || ""
+                                code: dbData.Neco[sid].success_code || ""
                             });
-                        });
-                    }
-                });
+                        }
+                    });
+                }
+                
+                if (dbData.Waec) {
+                    Object.keys(dbData.Waec).forEach(function(sid) {
+                        if (sid !== "count") {
+                            flatUsers.push({
+                                name: dbData.Waec[sid].candidate_name || "",
+                                secureId: sid,
+                                code: dbData.Waec[sid].success_code || ""
+                            });
+                        }
+                    });
+                }
 
                 return new Response(JSON.stringify({ success: true, totalCount: total, users: flatUsers }), {
                     status: 200,
@@ -70,7 +92,15 @@ export default {
 
         if (request.method === "POST") {
             try {
-                const body = await request.json();
+                let body;
+                try {
+                    body = await request.json();
+                } catch(parseErr) {
+                    return new Response(JSON.stringify({ success: false, error: "Invalid JSON in request body" }), {
+                        status: 400,
+                        headers: corsHeaders
+                    });
+                }
 
                 if (!body.password || body.password !== "@haruna66") {
                     return new Response(JSON.stringify({ success: false, error: "Invalid access password" }), {
@@ -79,11 +109,11 @@ export default {
                     });
                 }
 
-                const targetBranch = body.examBody && body.examBody.toLowerCase() === "waec" ? "Waec" : "Neco";
+                const targetBranch = (body.examBody && body.examBody.toLowerCase() === "waec") ? "Waec" : "Neco";
                 const secureId = body.secureId || "";
 
                 if (!secureId || !body.candidate_name || !body.exam_number) {
-                    return new Response(JSON.stringify({ success: false, error: "Missing required fields" }), {
+                    return new Response(JSON.stringify({ success: false, error: "Missing required fields: secureId, candidate_name, exam_number" }), {
                         status: 400,
                         headers: corsHeaders
                     });
@@ -106,7 +136,8 @@ export default {
                     created_at: new Date().toISOString()
                 };
 
-                const nodeUrl = `${rtdb}/Exam_Data/${targetBranch}/${secureId}.json?auth=${secret}`;
+                const nodeUrl = rtdb + "/Exam_Data/" + targetBranch + "/" + secureId + ".json?auth=" + secret;
+                
                 const saveRecord = await fetch(nodeUrl, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
@@ -115,21 +146,22 @@ export default {
 
                 if (!saveRecord.ok) {
                     const errText = await saveRecord.text();
-                    return new Response(JSON.stringify({ success: false, error: "Save failed: " + errText }), {
+                    return new Response(JSON.stringify({ success: false, error: "Firebase save failed: " + errText.substring(0, 200) }), {
                         status: 500,
                         headers: corsHeaders
                     });
                 }
 
-                const counterUrl = `${rtdb}/Exam_Data/Total_Exam/count.json?auth=${secret}`;
+                const counterUrl = rtdb + "/Exam_Data/Total_Exam/count.json?auth=" + secret;
                 const counterResp = await fetch(counterUrl);
                 let currentCount = 0;
                 if (counterResp.ok) {
-                    currentCount = await counterResp.json() || 0;
+                    const countData = await counterResp.json();
+                    currentCount = Number(countData) || 0;
                 }
-                currentCount = Number(currentCount) + 1;
+                currentCount = currentCount + 1;
 
-                await fetch(counterUrl, {
+                const updateCount = await fetch(counterUrl, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(currentCount)
@@ -152,7 +184,7 @@ export default {
             }
         }
 
-        return new Response(JSON.stringify({ error: "Method not allowed" }), { 
+        return new Response(JSON.stringify({ success: false, error: "Method not allowed" }), { 
             status: 405, 
             headers: corsHeaders 
         });
