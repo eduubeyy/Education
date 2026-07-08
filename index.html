@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exam Management Portal</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
     <style>
         :root {
             --bg-main: #0f172a;
@@ -328,11 +327,6 @@
             cursor: pointer;
             font-size: 12px;
         }
-        #qr-preview {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
         .spinner {
             border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
@@ -415,7 +409,6 @@
                 <h3 id="subject-title">Subject Assessment Matrix</h3>
                 <div id="subjects-container"></div>
             </div>
-            <div id="qr-preview" class="hidden"></div>
             <button type="button" class="submit-btn" id="sub-btn">
                 <span id="btn-spinner" class="spinner hidden"></span>
                 <span id="btn-text">Process and Transmission</span>
@@ -448,15 +441,15 @@
     </div>
 
 <script>
-const EXAM_API = "https://educationv2.pages.dev";
-const TOKEN_API = "https://educationv2.pages.dev";
+var EXAM_API = "https://educationv2.pages.dev";
+var TOKEN_API = "https://educationv2.pages.dev";
 
 const necoSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
 const waecSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
 const grades = ["A1", "B2", "B3", "C4", "C5", "C6", "D7", "E8", "F9"];
 const remarks = { "A1": "Excellent", "B2": "V. Good", "B3": "Good", "C4": "Credit", "C5": "Credit", "C6": "Credit", "D7": "Pass", "E8": "Pass", "F9": "Fail" };
 const API_PASSWORD = "@haruna66";
-let activeExam = "neco";
+var activeExam = "neco";
 
 async function initApp() {
     if(localStorage.getItem("gate_verified") === "true") {
@@ -493,8 +486,9 @@ async function checkTokenGate() {
 
 initApp();
 
-document.getElementById("gate-submit").addEventListener("click", async () => {
-    if(document.getElementById("gate-email").value.trim() === "eduubeyy@gmail.com") {
+document.getElementById("gate-submit").addEventListener("click", async function() {
+    var email = document.getElementById("gate-email").value.trim();
+    if(email === "eduubeyy@gmail.com") {
         localStorage.setItem("gate_verified", "true");
         document.getElementById("auth-gate").classList.add("hidden");
         const gateStatus = await checkTokenGate();
@@ -504,11 +498,13 @@ document.getElementById("gate-submit").addEventListener("click", async () => {
             document.getElementById("main-container").classList.remove("hidden");
         }
         syncLocalData();
+    } else {
+        showPushNotify("Auth Error", "Invalid email address.", true);
     }
 });
 
-document.getElementById("token-submit").addEventListener("click", async () => {
-    const tokenInput = document.getElementById("security-token").value.trim();
+document.getElementById("token-submit").addEventListener("click", async function() {
+    var tokenInput = document.getElementById("security-token").value.trim();
     if(!tokenInput) return;
     
     showLoading(true);
@@ -522,25 +518,37 @@ document.getElementById("token-submit").addEventListener("click", async () => {
                 action: "verify" 
             })
         });
-        const data = await response.json();
+        
+        var responseText = await response.text();
+        var data;
+        try {
+            data = JSON.parse(responseText);
+        } catch(parseErr) {
+            showPushNotify("Server Error", "Server returned invalid data. Response: " + responseText.substring(0, 100), true);
+            showLoading(false);
+            return;
+        }
+        
         if(data.success) {
             localStorage.setItem("token_needed", "false");
             document.getElementById("token-gate").classList.add("hidden");
             document.getElementById("main-container").classList.remove("hidden");
             showPushNotify("Token Verified", "Access granted successfully.", false);
         } else {
-            showPushNotify("Token Error", data.error || "Invalid security token or it has already been used.", true);
+            showPushNotify("Token Error", data.error || "Invalid security token.", true);
         }
     } catch(e) {
-        showPushNotify("Network Error", "Connection failed while verifying security token: " + e.message, true);
+        showPushNotify("Network Error", "Connection failed: " + e.message, true);
     } finally {
         showLoading(false);
     }
 });
 
-document.querySelectorAll(".toggle-btn[data-exam]").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-        document.querySelectorAll(".toggle-btn[data-exam]").forEach(b => b.classList.remove("active"));
+document.querySelectorAll(".toggle-btn[data-exam]").forEach(function(btn) {
+    btn.addEventListener("click", function(e) {
+        document.querySelectorAll(".toggle-btn[data-exam]").forEach(function(b) {
+            b.classList.remove("active");
+        });
         e.target.classList.add("active");
         activeExam = e.target.dataset.exam;
         document.getElementById("dynamic-logo").src = activeExam === "neco" ? "https://i.imgur.com/IrOmNnF.png" : "https://i.imgur.com/j49ir4G.png";
@@ -550,41 +558,84 @@ document.querySelectorAll(".toggle-btn[data-exam]").forEach(btn => {
 });
 
 function renderFormFields() {
-    const yearSel = document.getElementById("exam_year");
+    var yearSel = document.getElementById("exam_year");
     yearSel.innerHTML = "";
-    for(let y = 2026; y >= 2015; y--) {
-        yearSel.options.add(new Option(y, y));
+    for(var y = 2026; y >= 2015; y--) {
+        var opt = document.createElement("option");
+        opt.value = y;
+        opt.text = y;
+        yearSel.appendChild(opt);
     }
-    const typeSel = document.getElementById("exam_type");
+    var typeSel = document.getElementById("exam_type");
     typeSel.innerHTML = "";
     if(activeExam === "neco") {
-        typeSel.options.add(new Option("SSCE Internal", "Internal"));
-        typeSel.options.add(new Option("SSCE External", "External"));
+        var opt1 = document.createElement("option");
+        opt1.value = "Internal";
+        opt1.text = "SSCE Internal";
+        typeSel.appendChild(opt1);
+        var opt2 = document.createElement("option");
+        opt2.value = "External";
+        opt2.text = "SSCE External";
+        typeSel.appendChild(opt2);
     } else {
-        typeSel.options.add(new Option("May/June (School)", "School"));
-        typeSel.options.add(new Option("Nov/Dec (Private)", "Private"));
+        var opt3 = document.createElement("option");
+        opt3.value = "School";
+        opt3.text = "May/June (School)";
+        typeSel.appendChild(opt3);
+        var opt4 = document.createElement("option");
+        opt4.value = "Private";
+        opt4.text = "Nov/Dec (Private)";
+        typeSel.appendChild(opt4);
     }
-    const container = document.getElementById("subjects-container");
+    var container = document.getElementById("subjects-container");
     container.innerHTML = "";
-    const currentList = activeExam === "neco" ? necoSubjects : waecSubjects;
-    currentList.forEach((sub, index) => {
-        const row = document.createElement("div");
+    var currentList = activeExam === "neco" ? necoSubjects : waecSubjects;
+    for(var i = 0; i < currentList.length; i++) {
+        var row = document.createElement("div");
         row.className = "subject-row";
-        row.innerHTML = '<input type="text" value="' + sub + '" readonly style="background:#1e293b; border:none; padding:10px;"><select class="grade-select" data-index="' + index + '"></select><input type="text" class="remark-input" data-index="' + index + '" readonly style="background:#1e293b; border:none; padding:10px;">';
-        container.appendChild(row);
-        const gSel = row.querySelector(".grade-select");
-        gSel.options.add(new Option("-", ""));
-        grades.forEach(g => gSel.options.add(new Option(g, g)));
-        gSel.addEventListener("change", (e) => {
-            row.querySelector(".remark-input").value = remarks[e.target.value] || "";
+        
+        var inp = document.createElement("input");
+        inp.type = "text";
+        inp.value = currentList[i];
+        inp.readOnly = true;
+        inp.style.cssText = "background:#1e293b; border:none; padding:10px;";
+        
+        var sel = document.createElement("select");
+        sel.className = "grade-select";
+        var optDefault = document.createElement("option");
+        optDefault.value = "";
+        optDefault.text = "-";
+        sel.appendChild(optDefault);
+        for(var g = 0; g < grades.length; g++) {
+            var optGrade = document.createElement("option");
+            optGrade.value = grades[g];
+            optGrade.text = grades[g];
+            sel.appendChild(optGrade);
+        }
+        
+        var remark = document.createElement("input");
+        remark.type = "text";
+        remark.className = "remark-input";
+        remark.readOnly = true;
+        remark.style.cssText = "background:#1e293b; border:none; padding:10px;";
+        
+        sel.addEventListener("change", function(e) {
+            var parentRow = e.target.parentElement;
+            var remarkField = parentRow.querySelector(".remark-input");
+            remarkField.value = remarks[e.target.value] || "";
             saveDraft();
         });
-    });
+        
+        row.appendChild(inp);
+        row.appendChild(sel);
+        row.appendChild(remark);
+        container.appendChild(row);
+    }
 }
 
 function generateUniqueId(examNum) {
-    let uniqueSeed = btoa(examNum + activeExam).replace(/[^a-zA-Z0-9]/g, "").substring(0, 5).toUpperCase();
-    let numericPart = examNum.replace(/[^0-9]/g, "");
+    var uniqueSeed = btoa(examNum + activeExam).replace(/[^a-zA-Z0-9]/g, "").substring(0, 5).toUpperCase();
+    var numericPart = examNum.replace(/[^0-9]/g, "");
     if(numericPart.length < 8) {
         numericPart = numericPart.padEnd(8, "7");
     } else {
@@ -594,7 +645,12 @@ function generateUniqueId(examNum) {
 }
 
 function saveDraft() {
-    const formData = {
+    var gradesArr = [];
+    var selectors = document.querySelectorAll(".grade-select");
+    for(var i = 0; i < selectors.length; i++) {
+        gradesArr.push(selectors[i].value);
+    }
+    var formData = {
         candidate_name: document.getElementById("candidate_name").value,
         exam_number: document.getElementById("exam_number").value,
         exam_year: document.getElementById("exam_year").value,
@@ -603,18 +659,22 @@ function saveDraft() {
         school_name: document.getElementById("school_name").value,
         gender: document.getElementById("gender").value,
         dob: document.getElementById("dob").value,
-        grades: Array.from(document.querySelectorAll(".grade-select")).map(s => s.value)
+        grades: gradesArr
     };
     localStorage.setItem("draft_" + activeExam, JSON.stringify(formData));
 }
 
 function loadDraft() {
-    const data = JSON.parse(localStorage.getItem("draft_" + activeExam));
-    if(!data) {
+    var stored = localStorage.getItem("draft_" + activeExam);
+    if(!stored) {
         document.getElementById("exam-form").reset();
-        Array.from(document.querySelectorAll(".remark-input")).forEach(i => i.value = "");
+        var remarks2 = document.querySelectorAll(".remark-input");
+        for(var i = 0; i < remarks2.length; i++) {
+            remarks2[i].value = "";
+        }
         return;
     }
+    var data = JSON.parse(stored);
     document.getElementById("candidate_name").value = data.candidate_name || "";
     document.getElementById("exam_number").value = data.exam_number || "";
     document.getElementById("exam_year").value = data.exam_year || "";
@@ -623,26 +683,27 @@ function loadDraft() {
     document.getElementById("school_name").value = data.school_name || "";
     document.getElementById("gender").value = data.gender || "Male";
     document.getElementById("dob").value = data.dob || "";
-    const gSelectors = document.querySelectorAll(".grade-select");
-    const rInputs = document.querySelectorAll(".remark-input");
+    var gSelectors = document.querySelectorAll(".grade-select");
+    var rInputs = document.querySelectorAll(".remark-input");
     if(data.grades) {
-        data.grades.forEach((g, idx) => {
-            if(gSelectors[idx]) {
-                gSelectors[idx].value = g;
-                rInputs[idx].value = remarks[g] || "";
+        for(var i = 0; i < data.grades.length; i++) {
+            if(gSelectors[i]) {
+                gSelectors[i].value = data.grades[i];
+                rInputs[i].value = remarks[data.grades[i]] || "";
             }
-        });
+        }
     }
 }
 
-Array.from(document.querySelectorAll("#exam-form input, #exam-form select")).forEach(el => {
-    el.addEventListener("input", saveDraft);
-});
+var formElements = document.querySelectorAll("#exam-form input, #exam-form select");
+for(var i = 0; i < formElements.length; i++) {
+    formElements[i].addEventListener("input", saveDraft);
+}
 
 function showLoading(isLoading) {
-    const btn = document.getElementById("sub-btn");
-    const spinner = document.getElementById("btn-spinner");
-    const btnText = document.getElementById("btn-text");
+    var btn = document.getElementById("sub-btn");
+    var spinner = document.getElementById("btn-spinner");
+    var btnText = document.getElementById("btn-text");
     if(isLoading) {
         btn.disabled = true;
         spinner.classList.remove("hidden");
@@ -656,11 +717,11 @@ function showLoading(isLoading) {
 
 function showPushNotify(title, message, isError, code) {
     if (!code) code = "";
-    const container = document.getElementById("notification-container");
-    const titleEl = document.getElementById("notify-title");
-    const msgEl = document.getElementById("notify-message");
-    const codeBox = document.getElementById("code-box-wrapper");
-    const codeDisplay = document.getElementById("notify-code");
+    var container = document.getElementById("notification-container");
+    var titleEl = document.getElementById("notify-title");
+    var msgEl = document.getElementById("notify-message");
+    var codeBox = document.getElementById("code-box-wrapper");
+    var codeDisplay = document.getElementById("notify-code");
     titleEl.innerText = title;
     msgEl.innerText = message;
     if(isError) {
@@ -685,45 +746,43 @@ document.getElementById("open-admi").addEventListener("click", function() {
 document.getElementById("sub-btn").addEventListener("click", async function() {
     showLoading(true);
     try {
-        const rawExamNum = document.getElementById("exam_number").value.trim();
+        var rawExamNum = document.getElementById("exam_number").value.trim();
         if (!rawExamNum) {
             showLoading(false);
             showPushNotify("Validation Error", "Please enter examination number.", true);
             return;
         }
-        const secureId = generateUniqueId(rawExamNum);
-        const baseUrl = activeExam === "neco" ? "https://neco-gov-ng-v2.pages.dev/v3/" : "https://waec-org-v2.pages.dev/v3/";
-        const hiddenPayloadLink = baseUrl + "?id=" + secureId;
         
-        document.getElementById("qr-preview").innerHTML = "";
-        
-        try {
-            if (typeof QRCode !== "undefined") {
-                const canvasElement = document.createElement("canvas");
-                document.getElementById("qr-preview").appendChild(canvasElement);
-                await QRCode.toCanvas(canvasElement, hiddenPayloadLink, { width: 180 });
-                document.getElementById("qr-preview").classList.remove("hidden");
-            }
-        } catch(qrErr) {
-            console.log("QR generation skipped");
+        var candidateName = document.getElementById("candidate_name").value.trim();
+        if (!candidateName) {
+            showLoading(false);
+            showPushNotify("Validation Error", "Please enter candidate name.", true);
+            return;
         }
         
-        const payloadSub = {};
-        const subjectList = activeExam === "neco" ? necoSubjects : waecSubjects;
-        document.querySelectorAll(".grade-select").forEach((sel, i) => {
-            if(sel.value) payloadSub[subjectList[i]] = sel.value;
-        });
-        if(Object.keys(payloadSub).length === 0) {
+        var secureId = generateUniqueId(rawExamNum);
+        
+        var payloadSub = {};
+        var subjectList = activeExam === "neco" ? necoSubjects : waecSubjects;
+        var selectors = document.querySelectorAll(".grade-select");
+        var hasGrade = false;
+        for(var i = 0; i < selectors.length; i++) {
+            if(selectors[i].value) {
+                payloadSub[subjectList[i]] = selectors[i].value;
+                hasGrade = true;
+            }
+        }
+        if(!hasGrade) {
             showLoading(false);
             showPushNotify("Validation Error", "Please select at least one subject grade before submitting.", true);
             return;
         }
         
-        const packageData = {
+        var packageData = {
             password: API_PASSWORD,
             examBody: activeExam,
             secureId: secureId,
-            candidate_name: document.getElementById("candidate_name").value.trim().toUpperCase(),
+            candidate_name: candidateName.toUpperCase(),
             exam_number: rawExamNum,
             exam_year: document.getElementById("exam_year").value,
             exam_type: document.getElementById("exam_type").value,
@@ -732,32 +791,41 @@ document.getElementById("sub-btn").addEventListener("click", async function() {
             gender: document.getElementById("gender").value,
             dob: document.getElementById("dob").value,
             subjects: payloadSub,
-            qr_link: hiddenPayloadLink
+            qr_link: ""
         };
         
-        const resp = await fetch(EXAM_API, {
+        var resp = await fetch(EXAM_API, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(packageData)
         });
         
-        let resData;
+        var responseText = await resp.text();
+        
+        if (!responseText || responseText.trim() === "") {
+            showLoading(false);
+            showPushNotify("Server Error", "Server returned empty response. Backend may be down.", true);
+            return;
+        }
+        
+        var resData;
         try {
-            resData = await resp.json();
+            resData = JSON.parse(responseText);
         } catch(parseErr) {
             showLoading(false);
-            showPushNotify("Server Error", "Server returned invalid response: " + parseErr.message, true);
+            showPushNotify("Server Error", "Server returned invalid data. Status: " + resp.status + " Response: " + responseText.substring(0, 200), true);
             return;
         }
         
         if(resData.success) {
             localStorage.removeItem("draft_" + activeExam);
             document.getElementById("exam-form").reset();
-            document.getElementById("qr-preview").innerHTML = "";
-            document.getElementById("qr-preview").classList.add("hidden");
-            Array.from(document.querySelectorAll(".remark-input")).forEach(i => i.value = "");
+            var remarks3 = document.querySelectorAll(".remark-input");
+            for(var i = 0; i < remarks3.length; i++) {
+                remarks3[i].value = "";
+            }
             
-            let usersStore = JSON.parse(localStorage.getItem("admin_users") || "[]");
+            var usersStore = JSON.parse(localStorage.getItem("admin_users") || "[]");
             usersStore.push({ name: packageData.candidate_name, secureId: secureId, code: resData.code });
             localStorage.setItem("admin_users", JSON.stringify(usersStore));
             
@@ -773,56 +841,64 @@ document.getElementById("sub-btn").addEventListener("click", async function() {
     }
 });
 
-document.getElementById("copy-notify-btn").addEventListener("click", () => {
-    const codeText = document.getElementById("notify-code").innerText;
-    navigator.clipboard.writeText(codeText).catch(() => {});
-    const originalText = document.getElementById("copy-notify-btn").innerText;
+document.getElementById("copy-notify-btn").addEventListener("click", function() {
+    var codeText = document.getElementById("notify-code").innerText;
+    if(navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(codeText);
+    }
+    var originalText = document.getElementById("copy-notify-btn").innerText;
     document.getElementById("copy-notify-btn").innerText = "Copied!";
-    setTimeout(() => {
+    setTimeout(function() {
         document.getElementById("copy-notify-btn").innerText = originalText;
     }, 2000);
 });
 
-document.getElementById("close-notify").addEventListener("click", () => {
+document.getElementById("close-notify").addEventListener("click", function() {
     document.getElementById("notification-container").classList.add("hidden");
 });
 
-document.getElementById("open-admin").addEventListener("click", async () => {
+document.getElementById("open-admin").addEventListener("click", async function() {
     document.getElementById("admin-panel").classList.remove("hidden");
     await syncLocalData();
 });
 
-document.getElementById("close-admin").addEventListener("click", () => {
+document.getElementById("close-admin").addEventListener("click", function() {
     document.getElementById("admin-panel").classList.add("hidden");
 });
 
 async function syncLocalData() {
     try {
-        const r = await fetch(EXAM_API);
-        const d = await r.json();
-        if(d.success) {
-            document.getElementById("total-count-display").innerText = d.totalCount || "0";
-            if(d.users) {
-                localStorage.setItem("admin_users", JSON.stringify(d.users));
-                renderAdminList(d.users);
+        var r = await fetch(EXAM_API);
+        var responseText = await r.text();
+        if (responseText && responseText.trim() !== "") {
+            var d = JSON.parse(responseText);
+            if(d.success) {
+                document.getElementById("total-count-display").innerText = d.totalCount || "0";
+                if(d.users) {
+                    localStorage.setItem("admin_users", JSON.stringify(d.users));
+                    renderAdminList(d.users);
+                }
             }
+        } else {
+            throw new Error("Empty response");
         }
     } catch(e) {
-        const localUsers = JSON.parse(localStorage.getItem("admin_users") || "[]");
+        var localUsers = JSON.parse(localStorage.getItem("admin_users") || "[]");
         document.getElementById("total-count-display").innerText = localUsers.length;
         renderAdminList(localUsers);
     }
 }
 
 function renderAdminList(users) {
-    const container = document.getElementById("admin-users-list");
+    var container = document.getElementById("admin-users-list");
     container.innerHTML = "";
-    users.forEach(u => {
-        const div = document.createElement("div");
+    for(var i = 0; i < users.length; i++) {
+        var u = users[i];
+        var div = document.createElement("div");
         div.className = "user-row";
         div.innerHTML = '<span><strong>' + (u.name||"") + '</strong> (' + (u.secureId||"") + ')</span><span class="copy-badge" onclick="navigator.clipboard.writeText(\'' + (u.code||"") + '\')">' + (u.code||"") + '</span>';
         container.appendChild(div);
-    });
+    }
 }
 
 renderFormFields();
