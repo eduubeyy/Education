@@ -1,13 +1,12 @@
 export async function onRequest(context) {
     const { request, env } = context;
-    const origin = request.headers.get("Origin");
-    const allowedOrigins = ["https://educationv2.pages.dev", "http://localhost:8080"];
-    
+    const origin = request.headers.get("Origin") || "*";
+
     if (request.method === "OPTIONS") {
         return new Response(null, {
             status: 204,
             headers: {
-                "Access-Control-Allow-Origin": allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+                "Access-Control-Allow-Origin": origin,
                 "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
                 "Access-Control-Allow-Headers": "Content-Type",
                 "Access-Control-Max-Age": "86400"
@@ -16,7 +15,7 @@ export async function onRequest(context) {
     }
 
     const corsHeaders = {
-        "Access-Control-Allow-Origin": allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+        "Access-Control-Allow-Origin": origin,
         "Content-Type": "application/json"
     };
 
