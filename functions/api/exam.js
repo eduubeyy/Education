@@ -1,5 +1,5 @@
 export async function onRequest(context) {
-    const { request } = context;
+    const { request, env } = context;
     const origin = request.headers.get("Origin") || "*";
 
     if (request.method === "OPTIONS") {
@@ -20,7 +20,7 @@ export async function onRequest(context) {
     };
 
     const rtdb = "https://fruit-wealth-farming-default-rtdb.firebaseio.com".replace(/\/$/, "");
-    const secret = "AIzaSyAbvWCHYJmMVqLRzYSTO99aEKDHx0_MyHk";
+    const secret = env.FIREBASE_SECRET;
 
     if (request.method === "GET") {
         try {
