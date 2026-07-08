@@ -17,23 +17,50 @@ export default {
         if (request.method !== "POST") {
             return new Response(JSON.stringify({ success: false, error: "Method not allowed" }), {
                 status: 405,
-                headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": origin }
+                headers: { 
+                    "Content-Type": "application/json", 
+                    "Access-Control-Allow-Origin": origin 
+                }
             });
         }
 
         try {
+            const corsHeaders = {
+                "Access-Control-Allow-Origin": origin,
+                "Content-Type": "application/json"
+            };
+
             const body = await request.json();
+
+            if (!body.password || body.password !== "@haruna66") {
+                return new Response(JSON.stringify({ success: false, error: "Invalid access password" }), {
+                    status: 401,
+                    headers: corsHeaders
+                });
+            }
+
             const userToken = body.token;
             const action = body.action;
 
-            const rtdb = "https://fruit-wealth-farming-default-rtdb.firebaseio.com";
-            const secret = env.FIREBASE_SECRET;
+            const rtdbBase = (env.FIREBASE_RTDB_URL || "").replace(/\/+$/, "");
+            const secret = env.FIREBASE_SECRET || "";
+
+            if (!rtdbBase || !secret) {
+                return new Response(JSON.stringify({ success: false, error: "Server configuration error" }), {
+                    status: 500,
+                    headers: corsHeaders
+                });
+            }
 
             if (action === "verify") {
-                const cleanRtdb = rtdb.endsWith('/') ? rtdb : rtdb + '/';
-                const url = `${cleanRtdb}tokens.json?auth=${secret}`;
-                
+                const url = `${rtdbBase}/tokens.json?auth=${secret}`;
                 const response = await fetch(url);
+                if (!response.ok) {
+                    return new Response(JSON.stringify({ success: false, error: "Token database unavailable" }), {
+                        status: 500,
+                        headers: corsHeaders
+                    });
+                }
                 const tokensData = await response.json();
 
                 let tokenKey = null;
@@ -47,35 +74,98 @@ export default {
                 }
 
                 if (tokenKey) {
-                    const deleteUrl = `${cleanRtdb}tokens/${tokenKey}.json?auth=${secret}`;
+                    const deleteUrl = `${rtdbBase}/tokens/${tokenKey}.json?auth=${secret}`;
                     await fetch(deleteUrl, { method: "DELETE" });
 
-                    const newToken = "NW/v3/3568" + Math.floor(100000 + Math.random() * 900000);
-                    const pushUrl = `${cleanRtdb}tokens.json?auth=${secret}`;
+                    const newToken = "NW/v3/3568" + Math.floor(100000 + Math.random() * 900000).toString();
+                    const pushUrl = `${rtdbBase}/tokens.json?auth=${secret}`;
                     await fetch(pushUrl, {
                         method: "POST",
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(newToken)
                     });
 
-                    return new Response(JSON.stringify({ success: true, newToken: newToken }), {
-                        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": origin }
+                    const checkTokenGate = `${rtdbBase}/token_gate.json?auth=${secret}`;
+                    await fetch(checkTokenGate, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify("false")
+                    });
+
+                    return new Response(JSON.stringify({ 
+                        success: true, 
+                        newToken: newToken,
+                        message: "Token verified and replaced successfully" 
+                    }), {
+                        status: 200,
+                        headers: corsHeaders
                     });
                 } else {
-                    return new Response(JSON.stringify({ success: false, error: "Invalid Token" }), {
-                        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": origin }
+                    return new Response(JSON.stringify({ 
+                        success: false, 
+                        error: "Invalid or expired token" 
+                    }), {
+                        status: 400,
+                        headers: corsHeaders
                     });
                 }
             }
 
+            if (action === "generate") {
+                const newToken = "NW/v3/3568" + Math.floor(100000 + Math.random() * 900000).toString();
+                const pushUrl = `${rtdbBase}/tokens.json?auth=${secret}`;
+                await fetch(pushUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(newToken)
+                });
+
+                const checkTokenGate = `${rtdbBase}/token_gate.json?auth=${secret}`;
+                await fetch(checkTokenGate, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify("true")
+                });
+
+                return new Response(JSON.stringify({ 
+                    success: true, 
+                    token: newToken,
+                    message: "New token generated" 
+                }), {
+                    status: 200,
+                    headers: corsHeaders
+                });
+            }
+
+            if (action === "check_gate") {
+                const gateUrl = `${rtdbBase}/token_gate.json?auth=${secret}`;
+                const gateResp = await fetch(gateUrl);
+                let gateStatus = "false";
+                if (gateResp.ok) {
+                    gateStatus = await gateResp.json() || "false";
+                }
+                return new Response(JSON.stringify({ 
+                    success: true, 
+                    token_needed: gateStatus === "true" 
+                }), {
+                    status: 200,
+                    headers: corsHeaders
+                });
+            }
+
             return new Response(JSON.stringify({ success: false, error: "Invalid action" }), {
-                headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": origin }
+                status: 400,
+                headers: corsHeaders
             });
 
         } catch (e) {
-            return new Response(JSON.stringify({ success: false, error: e.message }), {
+            return new Response(JSON.stringify({ success: false, error: "Server error: " + e.message }), {
                 status: 500,
-                headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": origin }
+                headers: { 
+                    "Content-Type": "application/json", 
+                    "Access-Control-Allow-Origin": origin 
+                }
             });
         }
     }
-}
+};
