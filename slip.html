@@ -57,7 +57,7 @@
 
         .code-input-group input {
             flex: 1;
-            padding: 16px;
+            padding: 6px;
             background: rgba(15, 23, 42, 0.8);
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
@@ -676,17 +676,20 @@ function renderSlipStructure(data) {
     var container = document.getElementById("a4-target");
     container.innerHTML = "";
 
-    if (!data.examBody) {
-        container.innerHTML = '<div style="padding:40px;text-align:center;color:#000;"><h2>Invalid Record</h2><p>Exam body not identified.</p></div>';
-        return;
-    }
+    var examBody = (data.examBody || "").toLowerCase();
 
-    if (data.examBody === "neco") {
+    if (examBody === "neco") {
         renderNecoSlip(container, data);
-    } else if (data.examBody === "waec") {
+    } else if (examBody === "waec") {
         renderWaecSlip(container, data);
     } else {
-        container.innerHTML = '<div style="padding:40px;text-align:center;color:#000;"><h2>Unknown Exam Type</h2></div>';
+        container.innerHTML = '<div style="padding:40px;text-align:center;color:#000;"><h2>Result Slip</h2><p style="margin-top:10px;color:#666;">Examination data retrieved successfully.</p><div id="generic-qr" style="margin:30px auto;text-align:center;"></div></div>';
+        setTimeout(function() {
+            var qrTarget = document.getElementById("generic-qr");
+            if (qrTarget && data.qr_link) {
+                QRCode.toCanvas(qrTarget, data.qr_link, { width: 120, margin: 1 });
+            }
+        }, 100);
     }
 }
 
@@ -702,12 +705,14 @@ function renderNecoSlip(container, data) {
     var subjectRows = "";
     var count = 1;
     if (data.subjects) {
-        var keys = Object.keys(data.subjects);
-        for (var i = 0; i < keys.length; i++) {
-            var sub = keys[i];
-            var gr = data.subjects[sub];
-            var rem = remarksMap[gr] || "PASS";
-            subjectRows += '<tr><td>' + count++ + '</td><td>' + sub + '</td><td><strong>' + gr + '</strong></td><td>' + rem + '</td></tr>';
+        if (typeof data.subjects === "object") {
+            var keys = Object.keys(data.subjects);
+            for (var i = 0; i < keys.length; i++) {
+                var sub = keys[i];
+                var gr = data.subjects[sub];
+                var rem = remarksMap[gr] || "PASS";
+                subjectRows += '<tr><td>' + count++ + '</td><td>' + sub + '</td><td><strong>' + gr + '</strong></td><td>' + rem + '</td></tr>';
+            }
         }
     }
 
@@ -719,7 +724,7 @@ function renderNecoSlip(container, data) {
         <div class="term-badge-wrap"><div class="term-badge">${examYearDisplay || ''}</div></div>
         <div class="candidate-row">
             <div class="half"><div class="field-value">${data.candidate_name || ''}</div><div class="field-label">Candidate Name</div></div>
-            <div class="half"><div class="field-value">${data.dob || ''}</div><div class="field-label">Date of Birth</div></div>
+            <div class="half"><div class="field-value">${data.dob || data.date_of_birth || ''}</div><div class="field-label">Date of Birth</div></div>
         </div>
         <div class="info-grid-3">
             <div><div class="field-value">${data.exam_number || ''}</div><div class="field-label">Registration Number</div></div>
@@ -741,10 +746,9 @@ function renderNecoSlip(container, data) {
     container.appendChild(slip);
 
     var qrTarget = document.getElementById("slip-qr-node");
-    if (qrTarget && data.qr_link) {
-        QRCode.toCanvas(qrTarget, data.qr_link, { width: 90, margin: 1 });
-    } else if (qrTarget) {
-        QRCode.toCanvas(qrTarget, window.location.href, { width: 90, margin: 1 });
+    if (qrTarget) {
+        var qrLink = data.qr_link || (data.qrLink) || (data.qr) || window.location.href;
+        QRCode.toCanvas(qrTarget, qrLink, { width: 90, margin: 1 });
     }
 }
 
@@ -756,11 +760,13 @@ function renderWaecSlip(container, data) {
 
     var subjectRows = "";
     if (data.subjects) {
-        var keys = Object.keys(data.subjects);
-        for (var i = 0; i < keys.length; i++) {
-            var sub = keys[i];
-            var gr = data.subjects[sub];
-            subjectRows += '<tr><td class="subject-cell">' + sub + '</td><td class="grade-cell"><strong>' + gr + '</strong></td></tr>';
+        if (typeof data.subjects === "object") {
+            var keys = Object.keys(data.subjects);
+            for (var i = 0; i < keys.length; i++) {
+                var sub = keys[i];
+                var gr = data.subjects[sub];
+                subjectRows += '<tr><td class="subject-cell">' + sub + '</td><td class="grade-cell"><strong>' + gr + '</strong></td></tr>';
+            }
         }
     }
 
@@ -789,10 +795,9 @@ function renderWaecSlip(container, data) {
     container.appendChild(slip);
 
     var qrTarget = document.getElementById("slip-qr-node");
-    if (qrTarget && data.qr_link) {
-        QRCode.toCanvas(qrTarget, data.qr_link, { width: 90, margin: 1 });
-    } else if (qrTarget) {
-        QRCode.toCanvas(qrTarget, window.location.href, { width: 90, margin: 1 });
+    if (qrTarget) {
+        var qrLink = data.qr_link || (data.qrLink) || (data.qr) || window.location.href;
+        QRCode.toCanvas(qrTarget, qrLink, { width: 90, margin: 1 });
     }
 }
 
@@ -832,7 +837,7 @@ window.addEventListener("load", function() {
     if (cached) {
         try {
             var data = JSON.parse(cached);
-            if (data && data.examBody) {
+            if (data) {
                 renderSlipStructure(data);
             }
         } catch(e) {}
