@@ -8,8 +8,8 @@
         :root {
             --bg-main: #0f172a;
             --bg-card: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --text-main: #ffffff;
+            --text-muted: #cccccc;
             --primary-neco: #eab308;
             --primary-waec: #22c55e;
             --accent: #3b82f6;
@@ -29,7 +29,7 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
-            color: white;
+            color: #ffffff;
         }
         .hidden {
             display: none !important;
@@ -46,6 +46,7 @@
         #auth-gate h2, #token-gate h2 {
             margin-bottom: 20px;
             font-size: 24px;
+            color: #ffffff;
         }
         #auth-gate input, #token-gate input {
             width: 100%;
@@ -53,7 +54,7 @@
             border-radius: 8px;
             border: 1px solid #334155;
             background: #0f172a;
-            color: white;
+            color: #ffffff;
             font-size: 16px;
             margin-bottom: 20px;
             outline: none;
@@ -62,7 +63,7 @@
             width: 100%;
             padding: 12px;
             background: var(--accent);
-            color: white;
+            color: #ffffff;
             border: none;
             border-radius: 8px;
             font-size: 16px;
@@ -91,7 +92,7 @@
             font-weight: 700;
             border: 2px solid #334155;
             background: transparent;
-            color: var(--text-muted);
+            color: #cccccc;
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -101,13 +102,13 @@
         }
         .toggle-btn[data-exam="neco"].active {
             border-color: var(--primary-neco);
-            color: var(--primary-neco);
+            color: #ffffff;
             background: rgba(234, 179, 8, 0.1);
             box-shadow: 0 0 15px rgba(234, 179, 8, 0.2);
         }
         .toggle-btn[data-exam="waec"].active {
             border-color: var(--primary-waec);
-            color: var(--primary-waec);
+            color: #ffffff;
             background: rgba(34, 197, 94, 0.1);
             box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
         }
@@ -140,7 +141,7 @@
         }
         .input-group label {
             font-size: 14px;
-            color: var(--text-muted);
+            color: #cccccc;
             font-weight: 500;
         }
         .input-group input, .input-group select {
@@ -148,9 +149,13 @@
             background: #0f172a;
             border: 1px solid #334155;
             border-radius: 8px;
-            color: white;
+            color: #ffffff;
             font-size: 15px;
             outline: none;
+        }
+        .input-group select option {
+            color: #ffffff;
+            background: #0f172a;
         }
         .subjects-section {
             margin-top: 30px;
@@ -159,7 +164,7 @@
         }
         .subjects-section h3 {
             margin-bottom: 15px;
-            color: var(--text-main);
+            color: #ffffff;
         }
         .subject-row {
             display: grid;
@@ -176,13 +181,17 @@
             box-sizing: border-box;
             font-size: 13px !important;
             padding: 8px !important;
-            color: var(--text-main);
+            color: #ffffff;
+        }
+        .subject-row select option {
+            color: #ffffff;
+            background: #0f172a;
         }
         .remark-input {
             background: #1e293b !important;
             border: 1px solid #334155 !important;
             border-radius: 6px;
-            color: #94a3b8 !important;
+            color: #ffffff !important;
             font-weight: 600;
             text-align: center;
         }
@@ -190,7 +199,7 @@
             width: 100%;
             padding: 16px;
             background: var(--accent);
-            color: white;
+            color: #ffffff;
             border: none;
             border-radius: 12px;
             font-size: 16px;
@@ -210,7 +219,7 @@
             top: 20px;
             right: 20px;
             background: var(--success);
-            color: white;
+            color: #ffffff;
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
@@ -227,6 +236,9 @@
             margin-bottom: 10px;
             font-weight: bold;
         }
+        .notify-header span {
+            color: #ffffff;
+        }
         .notify-close {
             cursor: pointer;
             font-size: 20px;
@@ -234,6 +246,7 @@
         .notify-body p {
             font-size: 14px;
             margin-bottom: 10px;
+            color: #ffffff;
         }
         .code-area-box {
             display: flex;
@@ -250,10 +263,11 @@
             letter-spacing: 2px;
             border-radius: 6px;
             font-weight: bold;
+            color: #ffffff;
         }
         .copy-btn {
-            background: #fff;
-            color: #000;
+            background: #ffffff;
+            color: #000000;
             border: none;
             padding: 0 12px;
             border-radius: 6px;
@@ -267,7 +281,7 @@
             right: 32px;
             background: none;
             border: none;
-            color: var(--text-muted);
+            color: #cccccc;
             font-size: 24px;
             cursor: pointer;
         }
@@ -276,7 +290,7 @@
             height: 60px;
             border-radius: 50%;
             background: #ff6b6b;
-            color: white;
+            color: #ffffff;
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
@@ -313,12 +327,16 @@
             border-bottom: 1px solid #334155;
             padding-bottom: 10px;
         }
+        .admin-header h3 {
+            color: #ffffff;
+        }
         .user-row {
             display: flex;
             justify-content: space-between;
             padding: 12px;
             border-bottom: 1px solid #334155;
             font-size: 14px;
+            color: #ffffff;
         }
         .copy-badge {
             background: var(--accent);
@@ -326,11 +344,12 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
+            color: #ffffff;
         }
         .spinner {
             border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
-            border-top: 3px solid white;
+            border-top: 3px solid #ffffff;
             width: 20px;
             height: 20px;
             animation: spin 1s linear infinite;
@@ -348,7 +367,7 @@
         <h2>System Authentication</h2>
         <input type="email" id="gate-email" placeholder="Enter administrative email">
         <button id="gate-submit">Verify Identity</button>
-    </div>   
+    </div>
 
     <div id="token-gate" class="hidden">
         <h2>Security Token Required</h2>
@@ -358,8 +377,8 @@
 
     <div id="main-container" class="hidden">
         <button class="admin-trigr" id="open-admi">Slips</button>
-        <button class="admin-trigger" id="open-admin">⚙️</button>
-        
+        <button class="admin-trigger" id="open-admin">&#9881;</button>
+
         <div class="top-nav">
             <button class="toggle-btn active" data-exam="neco">NECO</button>
             <button class="toggle-btn" data-exam="waec">WAEC</button>
@@ -419,7 +438,7 @@
     <div id="notification-container" class="hidden">
         <div class="notify-header">
             <span id="notify-title">Transmission Successful</span>
-            <span class="notify-close" id="close-notify">❌</span>
+            <span class="notify-close" id="close-notify">&#10060;</span>
         </div>
         <div class="notify-body">
             <p id="notify-message">Database synchronization finalized. Secure verification code generated below:</p>
@@ -434,15 +453,15 @@
         <div class="admin-content">
             <div class="admin-header">
                 <h3>Global Audit Log (<span id="total-count-display">0</span> Users Mastered)</h3>
-                <button class="toggle-btn" id="close-admin" style="padding:5px 10px; max-width:80px;">Exit</button>
+                <button class="toggle-btn" id="close-admin" style="padding:5px 10px; max-width:80px; color:#ffffff;">Exit</button>
             </div>
             <div id="admin-users-list"></div>
         </div>
     </div>
 
 <script>
-var EXAM_API = "https://educationv2.pages.dev";
-var TOKEN_API = "https://educationv2.pages.dev";
+var EXAM_API = "/api/exam";
+var TOKEN_API = "/api/token";
 
 const necoSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
 const waecSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
@@ -466,12 +485,17 @@ async function initApp() {
 
 async function checkTokenGate() {
     try {
-        const r = await fetch(TOKEN_API, {
+        var r = await fetch(TOKEN_API, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ password: API_PASSWORD, action: "check_gate" })
         });
-        const d = await r.json();
+        var responseText = await r.text();
+        if (!responseText || responseText.trim() === "") {
+            localStorage.setItem("token_needed", "false");
+            return false;
+        }
+        var d = JSON.parse(responseText);
         if(d.success && d.token_needed) {
             localStorage.setItem("token_needed", "true");
             return true;
@@ -479,7 +503,7 @@ async function checkTokenGate() {
         localStorage.setItem("token_needed", "false");
         return false;
     } catch(e) {
-        const stored = localStorage.getItem("token_needed");
+        var stored = localStorage.getItem("token_needed");
         return stored === "true";
     }
 }
@@ -491,7 +515,7 @@ document.getElementById("gate-submit").addEventListener("click", async function(
     if(email === "eduubeyy@gmail.com") {
         localStorage.setItem("gate_verified", "true");
         document.getElementById("auth-gate").classList.add("hidden");
-        const gateStatus = await checkTokenGate();
+        var gateStatus = await checkTokenGate();
         if (gateStatus) {
             document.getElementById("token-gate").classList.remove("hidden");
         } else {
@@ -506,29 +530,28 @@ document.getElementById("gate-submit").addEventListener("click", async function(
 document.getElementById("token-submit").addEventListener("click", async function() {
     var tokenInput = document.getElementById("security-token").value.trim();
     if(!tokenInput) return;
-    
+
     showLoading(true);
     try {
-        const response = await fetch(TOKEN_API, {
+        var response = await fetch(TOKEN_API, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 password: API_PASSWORD,
-                token: tokenInput, 
-                action: "verify" 
+                token: tokenInput,
+                action: "verify"
             })
         });
-        
+
         var responseText = await response.text();
-        var data;
-        try {
-            data = JSON.parse(responseText);
-        } catch(parseErr) {
-            showPushNotify("Server Error", "Server returned invalid data. Response: " + responseText.substring(0, 100), true);
+        if (!responseText || responseText.trim() === "") {
+            showPushNotify("Server Error", "Token server returned empty response.", true);
             showLoading(false);
             return;
         }
-        
+
+        var data = JSON.parse(responseText);
+
         if(data.success) {
             localStorage.setItem("token_needed", "false");
             document.getElementById("token-gate").classList.add("hidden");
@@ -593,13 +616,13 @@ function renderFormFields() {
     for(var i = 0; i < currentList.length; i++) {
         var row = document.createElement("div");
         row.className = "subject-row";
-        
+
         var inp = document.createElement("input");
         inp.type = "text";
         inp.value = currentList[i];
         inp.readOnly = true;
-        inp.style.cssText = "background:#1e293b; border:none; padding:10px;";
-        
+        inp.style.cssText = "background:#1e293b; border:none; padding:10px; color:#ffffff;";
+
         var sel = document.createElement("select");
         sel.className = "grade-select";
         var optDefault = document.createElement("option");
@@ -612,20 +635,20 @@ function renderFormFields() {
             optGrade.text = grades[g];
             sel.appendChild(optGrade);
         }
-        
+
         var remark = document.createElement("input");
         remark.type = "text";
         remark.className = "remark-input";
         remark.readOnly = true;
-        remark.style.cssText = "background:#1e293b; border:none; padding:10px;";
-        
+        remark.style.cssText = "background:#1e293b; border:none; padding:10px; color:#ffffff;";
+
         sel.addEventListener("change", function(e) {
             var parentRow = e.target.parentElement;
             var remarkField = parentRow.querySelector(".remark-input");
             remarkField.value = remarks[e.target.value] || "";
             saveDraft();
         });
-        
+
         row.appendChild(inp);
         row.appendChild(sel);
         row.appendChild(remark);
@@ -752,16 +775,16 @@ document.getElementById("sub-btn").addEventListener("click", async function() {
             showPushNotify("Validation Error", "Please enter examination number.", true);
             return;
         }
-        
+
         var candidateName = document.getElementById("candidate_name").value.trim();
         if (!candidateName) {
             showLoading(false);
             showPushNotify("Validation Error", "Please enter candidate name.", true);
             return;
         }
-        
+
         var secureId = generateUniqueId(rawExamNum);
-        
+
         var payloadSub = {};
         var subjectList = activeExam === "neco" ? necoSubjects : waecSubjects;
         var selectors = document.querySelectorAll(".grade-select");
@@ -777,7 +800,7 @@ document.getElementById("sub-btn").addEventListener("click", async function() {
             showPushNotify("Validation Error", "Please select at least one subject grade before submitting.", true);
             return;
         }
-        
+
         var packageData = {
             password: API_PASSWORD,
             examBody: activeExam,
@@ -793,21 +816,21 @@ document.getElementById("sub-btn").addEventListener("click", async function() {
             subjects: payloadSub,
             qr_link: ""
         };
-        
+
         var resp = await fetch(EXAM_API, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(packageData)
         });
-        
+
         var responseText = await resp.text();
-        
+
         if (!responseText || responseText.trim() === "") {
             showLoading(false);
-            showPushNotify("Server Error", "Server returned empty response. Backend may be down.", true);
+            showPushNotify("Server Error", "Server returned empty response. Status: " + resp.status, true);
             return;
         }
-        
+
         var resData;
         try {
             resData = JSON.parse(responseText);
@@ -816,7 +839,7 @@ document.getElementById("sub-btn").addEventListener("click", async function() {
             showPushNotify("Server Error", "Server returned invalid data. Status: " + resp.status + " Response: " + responseText.substring(0, 200), true);
             return;
         }
-        
+
         if(resData.success) {
             localStorage.removeItem("draft_" + activeExam);
             document.getElementById("exam-form").reset();
@@ -824,11 +847,11 @@ document.getElementById("sub-btn").addEventListener("click", async function() {
             for(var i = 0; i < remarks3.length; i++) {
                 remarks3[i].value = "";
             }
-            
+
             var usersStore = JSON.parse(localStorage.getItem("admin_users") || "[]");
             usersStore.push({ name: packageData.candidate_name, secureId: secureId, code: resData.code });
             localStorage.setItem("admin_users", JSON.stringify(usersStore));
-            
+
             showPushNotify("Transmission Successful", "Database synchronization finalized. Secure verification code generated below:", false, resData.code);
             document.getElementById("total-count-display").innerText = resData.totalCount || "0";
         } else {
