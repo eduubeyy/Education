@@ -47,8 +47,8 @@ export async function onRequest(context) {
         const userToken = body.token;
         const action = body.action;
 
-        const rtdbBase = (env.FIREBASE_RTDB_URL || "").replace(/\/+$/, "");
-        const secret = env.FIREBASE_SECRET || "";
+        const rtdbBase = env.FIREBASE_RTDB_URL;
+        const secret = env.FIREBASE_SECRET;
 
         if (!rtdbBase || !secret) {
             return new Response(JSON.stringify({ success: false, error: "Server configuration error" }), {
@@ -67,7 +67,6 @@ export async function onRequest(context) {
                 });
             }
             const tokensData = await response.json();
-
             let tokenKey = null;
             if (tokensData && typeof tokensData === "object") {
                 for (const key in tokensData) {
@@ -77,11 +76,9 @@ export async function onRequest(context) {
                     }
                 }
             }
-
             if (tokenKey) {
                 const deleteUrl = rtdbBase + "/tokens/" + tokenKey + ".json?auth=" + secret;
                 await fetch(deleteUrl, { method: "DELETE" });
-
                 const newToken = "NW/v3/3568" + Math.floor(100000 + Math.random() * 900000).toString();
                 const pushUrl = rtdbBase + "/tokens.json?auth=" + secret;
                 await fetch(pushUrl, {
@@ -89,18 +86,10 @@ export async function onRequest(context) {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(newToken)
                 });
-
-                const checkTokenGate = rtdbBase + "/token_gate.json?auth=" + secret;
-                await fetch(checkTokenGate, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify("false")
-                });
-
                 return new Response(JSON.stringify({
                     success: true,
                     newToken: newToken,
-                    message: "Token verified successfully"
+                    message: "Token verified and replaced successfully"
                 }), {
                     status: 200,
                     headers: corsHeaders
@@ -130,14 +119,6 @@ export async function onRequest(context) {
                     headers: corsHeaders
                 });
             }
-
-            const checkTokenGate = rtdbBase + "/token_gate.json?auth=" + secret;
-            await fetch(checkTokenGate, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify("true")
-            });
-
             return new Response(JSON.stringify({
                 success: true,
                 token: newToken,
