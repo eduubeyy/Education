@@ -8,8 +8,8 @@
         :root {
             --bg-main: #0f172a;
             --bg-card: #1e293b;
-            --text-main: #ffffff;
-            --text-muted: #cccccc;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
             --primary-neco: #eab308;
             --primary-waec: #22c55e;
             --accent: #3b82f6;
@@ -29,7 +29,7 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
-            color: #ffffff;
+            color: white;
         }
         .hidden {
             display: none !important;
@@ -46,7 +46,6 @@
         #auth-gate h2, #token-gate h2 {
             margin-bottom: 20px;
             font-size: 24px;
-            color: #ffffff;
         }
         #auth-gate input, #token-gate input {
             width: 100%;
@@ -54,7 +53,7 @@
             border-radius: 8px;
             border: 1px solid #334155;
             background: #0f172a;
-            color: #ffffff;
+            color: white;
             font-size: 16px;
             margin-bottom: 20px;
             outline: none;
@@ -63,7 +62,7 @@
             width: 100%;
             padding: 12px;
             background: var(--accent);
-            color: #ffffff;
+            color: white;
             border: none;
             border-radius: 8px;
             font-size: 16px;
@@ -78,6 +77,7 @@
             padding: 32px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.6);
             position: relative;
+            max-width: 100%;
             overflow-x: hidden;
         }
         .top-nav {
@@ -92,7 +92,7 @@
             font-weight: 700;
             border: 2px solid #334155;
             background: transparent;
-            color: #cccccc;
+            color: var(--text-muted);
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -102,13 +102,13 @@
         }
         .toggle-btn[data-exam="neco"].active {
             border-color: var(--primary-neco);
-            color: #ffffff;
+            color: var(--primary-neco);
             background: rgba(234, 179, 8, 0.1);
             box-shadow: 0 0 15px rgba(234, 179, 8, 0.2);
         }
         .toggle-btn[data-exam="waec"].active {
             border-color: var(--primary-waec);
-            color: #ffffff;
+            color: var(--primary-waec);
             background: rgba(34, 197, 94, 0.1);
             box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
         }
@@ -141,7 +141,7 @@
         }
         .input-group label {
             font-size: 14px;
-            color: #cccccc;
+            color: var(--text-muted);
             font-weight: 500;
         }
         .input-group input, .input-group select {
@@ -149,13 +149,9 @@
             background: #0f172a;
             border: 1px solid #334155;
             border-radius: 8px;
-            color: #ffffff;
+            color: white;
             font-size: 15px;
             outline: none;
-        }
-        .input-group select option {
-            color: #ffffff;
-            background: #0f172a;
         }
         .subjects-section {
             margin-top: 30px;
@@ -164,7 +160,7 @@
         }
         .subjects-section h3 {
             margin-bottom: 15px;
-            color: #ffffff;
+            color: var(--text-main);
         }
         .subject-row {
             display: grid;
@@ -181,17 +177,13 @@
             box-sizing: border-box;
             font-size: 13px !important;
             padding: 8px !important;
-            color: #ffffff;
-        }
-        .subject-row select option {
-            color: #ffffff;
-            background: #0f172a;
+            color: var(--text-main);
         }
         .remark-input {
             background: #1e293b !important;
             border: 1px solid #334155 !important;
             border-radius: 6px;
-            color: #ffffff !important;
+            color: #94a3b8 !important;
             font-weight: 600;
             text-align: center;
         }
@@ -199,7 +191,7 @@
             width: 100%;
             padding: 16px;
             background: var(--accent);
-            color: #ffffff;
+            color: white;
             border: none;
             border-radius: 12px;
             font-size: 16px;
@@ -214,12 +206,25 @@
             background: #475569;
             cursor: not-allowed;
         }
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
         #notification-container {
             position: fixed;
             top: 20px;
             right: 20px;
             background: var(--success);
-            color: #ffffff;
+            color: white;
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
@@ -236,9 +241,6 @@
             margin-bottom: 10px;
             font-weight: bold;
         }
-        .notify-header span {
-            color: #ffffff;
-        }
         .notify-close {
             cursor: pointer;
             font-size: 20px;
@@ -246,7 +248,6 @@
         .notify-body p {
             font-size: 14px;
             margin-bottom: 10px;
-            color: #ffffff;
         }
         .code-area-box {
             display: flex;
@@ -263,11 +264,10 @@
             letter-spacing: 2px;
             border-radius: 6px;
             font-weight: bold;
-            color: #ffffff;
         }
         .copy-btn {
-            background: #ffffff;
-            color: #000000;
+            background: #fff;
+            color: #000;
             border: none;
             padding: 0 12px;
             border-radius: 6px;
@@ -281,7 +281,7 @@
             right: 32px;
             background: none;
             border: none;
-            color: #cccccc;
+            color: var(--text-muted);
             font-size: 24px;
             cursor: pointer;
         }
@@ -290,7 +290,7 @@
             height: 60px;
             border-radius: 50%;
             background: #ff6b6b;
-            color: #ffffff;
+            color: white;
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
@@ -327,16 +327,12 @@
             border-bottom: 1px solid #334155;
             padding-bottom: 10px;
         }
-        .admin-header h3 {
-            color: #ffffff;
-        }
         .user-row {
             display: flex;
             justify-content: space-between;
             padding: 12px;
             border-bottom: 1px solid #334155;
             font-size: 14px;
-            color: #ffffff;
         }
         .copy-badge {
             background: var(--accent);
@@ -344,20 +340,11 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
-            color: #ffffff;
         }
-        .spinner {
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top: 3px solid #ffffff;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        #qr-preview {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -371,6 +358,7 @@
 
     <div id="token-gate" class="hidden">
         <h2>Security Token Required</h2>
+        <p style="margin-bottom:15px;color:#94a3b8;font-size:14px;">A token is required before processing a new candidate. Enter the token below:</p>
         <input type="text" id="security-token" placeholder="Enter NW/v3/3568... Token">
         <button id="token-submit">Verify Token</button>
     </div>
@@ -453,105 +441,84 @@
         <div class="admin-content">
             <div class="admin-header">
                 <h3>Global Audit Log (<span id="total-count-display">0</span> Users Mastered)</h3>
-                <button class="toggle-btn" id="close-admin" style="padding:5px 10px; max-width:80px; color:#ffffff;">Exit</button>
+                <button class="toggle-btn" id="close-admin" style="padding:5px 10px; max-width:80px;">Exit</button>
             </div>
             <div id="admin-users-list"></div>
         </div>
     </div>
 
 <script>
-var EXAM_API = "/api/exam";
-var TOKEN_API = "/api/token";
+var EXAM_API = "https://educationv2.pages.dev/api/exam";
+var TOKEN_API = "https://educationv2.pages.dev/api/token";
 
-const necoSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
-const waecSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
-const grades = ["A1", "B2", "B3", "C4", "C5", "C6", "D7", "E8", "F9"];
-const remarks = { "A1": "Excellent", "B2": "V. Good", "B3": "Good", "C4": "Credit", "C5": "Credit", "C6": "Credit", "D7": "Pass", "E8": "Pass", "F9": "Fail" };
-const API_PASSWORD = "@haruna66";
+var necoSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
+var waecSubjects = ["English Language", "General Mathematics", "Civic Education", "Biology", "Chemistry", "Physics", "Islamic Studies", "Hausa", "Animal Husbandry", "Economics", "Financial Accounting", "Commerce", "Computer Studies", "Government", "Agricultural Science", "History", "Marketing", "Geography", "C. R. S", "Arabic"];
+var grades = ["A1", "B2", "B3", "C4", "C5", "C6", "D7", "E8", "F9"];
+var remarks = { "A1": "Excellent", "B2": "V. Good", "B3": "Good", "C4": "Credit", "C5": "Credit", "C6": "Credit", "D7": "Pass", "E8": "Pass", "F9": "Fail" };
+var API_PASSWORD = "@haruna66";
 var activeExam = "neco";
 
-async function initApp() {
+function initApp() {
     if(localStorage.getItem("gate_verified") === "true") {
         document.getElementById("auth-gate").classList.add("hidden");
-        const gateStatus = await checkTokenGate();
-        if (gateStatus) {
+        var tokenNeeded = localStorage.getItem("token_needed") === "true";
+        if(tokenNeeded) {
             document.getElementById("token-gate").classList.remove("hidden");
         } else {
             document.getElementById("main-container").classList.remove("hidden");
         }
         syncLocalData();
-    }
-}
-
-async function checkTokenGate() {
-    try {
-        var r = await fetch(TOKEN_API, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ password: API_PASSWORD, action: "check_gate" })
-        });
-        var responseText = await r.text();
-        if (!responseText || responseText.trim() === "") {
-            localStorage.setItem("token_needed", "false");
-            return false;
-        }
-        var d = JSON.parse(responseText);
-        if(d.success && d.token_needed) {
-            localStorage.setItem("token_needed", "true");
-            return true;
-        }
-        localStorage.setItem("token_needed", "false");
-        return false;
-    } catch(e) {
-        var stored = localStorage.getItem("token_needed");
-        return stored === "true";
     }
 }
 
 initApp();
 
-document.getElementById("gate-submit").addEventListener("click", async function() {
-    var email = document.getElementById("gate-email").value.trim();
-    if(email === "eduubeyy@gmail.com") {
+document.getElementById("gate-submit").addEventListener("click", function() {
+    if(document.getElementById("gate-email").value.trim() === "eduubeyy@gmail.com") {
         localStorage.setItem("gate_verified", "true");
         document.getElementById("auth-gate").classList.add("hidden");
-        var gateStatus = await checkTokenGate();
-        if (gateStatus) {
+        var tokenNeeded = localStorage.getItem("token_needed") === "true";
+        if(tokenNeeded) {
             document.getElementById("token-gate").classList.remove("hidden");
         } else {
             document.getElementById("main-container").classList.remove("hidden");
         }
         syncLocalData();
-    } else {
-        showPushNotify("Auth Error", "Invalid email address.", true);
     }
 });
 
-document.getElementById("token-submit").addEventListener("click", async function() {
+function lockPageForToken() {
+    localStorage.setItem("token_needed", "true");
+    document.getElementById("main-container").classList.add("hidden");
+    document.getElementById("token-gate").classList.remove("hidden");
+    document.getElementById("security-token").value = "";
+    var tokenBtn = document.getElementById("token-submit");
+    tokenBtn.disabled = false;
+    tokenBtn.innerText = "Verify Token";
+}
+
+document.getElementById("token-submit").addEventListener("click", function() {
     var tokenInput = document.getElementById("security-token").value.trim();
     if(!tokenInput) return;
-
-    showLoading(true);
-    try {
-        var response = await fetch(TOKEN_API, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                password: API_PASSWORD,
-                token: tokenInput,
-                action: "verify"
-            })
-        });
-
-        var responseText = await response.text();
-        if (!responseText || responseText.trim() === "") {
-            showPushNotify("Server Error", "Token server returned empty response.", true);
-            showLoading(false);
+    var btn = document.getElementById("token-submit");
+    btn.disabled = true;
+    btn.innerText = "Verifying...";
+    fetch(TOKEN_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            password: API_PASSWORD,
+            token: tokenInput,
+            action: "verify"
+        })
+    }).then(function(r) { return r.text(); }).then(function(responseText) {
+        btn.disabled = false;
+        btn.innerText = "Verify Token";
+        if(!responseText || responseText.trim() === "") {
+            showPushNotify("Token Error", "Server returned empty response. Check backend.", true);
             return;
         }
-
         var data = JSON.parse(responseText);
-
         if(data.success) {
             localStorage.setItem("token_needed", "false");
             document.getElementById("token-gate").classList.add("hidden");
@@ -560,11 +527,11 @@ document.getElementById("token-submit").addEventListener("click", async function
         } else {
             showPushNotify("Token Error", data.error || "Invalid security token.", true);
         }
-    } catch(e) {
+    }).catch(function(e) {
+        btn.disabled = false;
+        btn.innerText = "Verify Token";
         showPushNotify("Network Error", "Connection failed: " + e.message, true);
-    } finally {
-        showLoading(false);
-    }
+    });
 });
 
 document.querySelectorAll(".toggle-btn[data-exam]").forEach(function(btn) {
@@ -616,13 +583,11 @@ function renderFormFields() {
     for(var i = 0; i < currentList.length; i++) {
         var row = document.createElement("div");
         row.className = "subject-row";
-
         var inp = document.createElement("input");
         inp.type = "text";
         inp.value = currentList[i];
         inp.readOnly = true;
-        inp.style.cssText = "background:#1e293b; border:none; padding:10px; color:#ffffff;";
-
+        inp.style.cssText = "background:#1e293b; border:none; padding:10px;";
         var sel = document.createElement("select");
         sel.className = "grade-select";
         var optDefault = document.createElement("option");
@@ -635,20 +600,17 @@ function renderFormFields() {
             optGrade.text = grades[g];
             sel.appendChild(optGrade);
         }
-
         var remark = document.createElement("input");
         remark.type = "text";
         remark.className = "remark-input";
         remark.readOnly = true;
-        remark.style.cssText = "background:#1e293b; border:none; padding:10px; color:#ffffff;";
-
+        remark.style.cssText = "background:#1e293b; border:none; padding:10px;";
         sel.addEventListener("change", function(e) {
             var parentRow = e.target.parentElement;
             var remarkField = parentRow.querySelector(".remark-input");
             remarkField.value = remarks[e.target.value] || "";
             saveDraft();
         });
-
         row.appendChild(inp);
         row.appendChild(sel);
         row.appendChild(remark);
@@ -766,80 +728,72 @@ document.getElementById("open-admi").addEventListener("click", function() {
     window.location.href = 'slip.html';
 });
 
-document.getElementById("sub-btn").addEventListener("click", async function() {
+document.getElementById("sub-btn").addEventListener("click", function() {
     showLoading(true);
-    try {
-        var rawExamNum = document.getElementById("exam_number").value.trim();
-        if (!rawExamNum) {
-            showLoading(false);
-            showPushNotify("Validation Error", "Please enter examination number.", true);
-            return;
+    var rawExamNum = document.getElementById("exam_number").value.trim();
+    if (!rawExamNum) {
+        showLoading(false);
+        showPushNotify("Validation Error", "Please enter examination number.", true);
+        return;
+    }
+    var candidateName = document.getElementById("candidate_name").value.trim();
+    if (!candidateName) {
+        showLoading(false);
+        showPushNotify("Validation Error", "Please enter candidate name.", true);
+        return;
+    }
+    var secureId = generateUniqueId(rawExamNum);
+    var baseUrl = activeExam === "neco" ? "https://neco-gov-ng-v2.pages.dev/v3/" : "https://waec-org-v2.pages.dev/v3/";
+    var qrCodeData = baseUrl + "?exam_number=" + rawExamNum;
+    var payloadSub = {};
+    var subjectList = activeExam === "neco" ? necoSubjects : waecSubjects;
+    var selectors = document.querySelectorAll(".grade-select");
+    var hasGrade = false;
+    for(var i = 0; i < selectors.length; i++) {
+        if(selectors[i].value) {
+            payloadSub[subjectList[i]] = selectors[i].value;
+            hasGrade = true;
         }
-
-        var candidateName = document.getElementById("candidate_name").value.trim();
-        if (!candidateName) {
-            showLoading(false);
-            showPushNotify("Validation Error", "Please enter candidate name.", true);
-            return;
-        }
-
-        var secureId = generateUniqueId(rawExamNum);
-
-        var payloadSub = {};
-        var subjectList = activeExam === "neco" ? necoSubjects : waecSubjects;
-        var selectors = document.querySelectorAll(".grade-select");
-        var hasGrade = false;
-        for(var i = 0; i < selectors.length; i++) {
-            if(selectors[i].value) {
-                payloadSub[subjectList[i]] = selectors[i].value;
-                hasGrade = true;
-            }
-        }
-        if(!hasGrade) {
-            showLoading(false);
-            showPushNotify("Validation Error", "Please select at least one subject grade before submitting.", true);
-            return;
-        }
-
-        var packageData = {
-            password: API_PASSWORD,
-            examBody: activeExam,
-            secureId: secureId,
-            candidate_name: candidateName.toUpperCase(),
-            exam_number: rawExamNum,
-            exam_year: document.getElementById("exam_year").value,
-            exam_type: document.getElementById("exam_type").value,
-            school_number: document.getElementById("school_number").value.trim(),
-            school_name: document.getElementById("school_name").value.trim().toUpperCase(),
-            gender: document.getElementById("gender").value,
-            dob: document.getElementById("dob").value,
-            subjects: payloadSub,
-            qr_link: ""
-        };
-
-        var resp = await fetch(EXAM_API, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(packageData)
-        });
-
-        var responseText = await resp.text();
-
+    }
+    if(!hasGrade) {
+        showLoading(false);
+        showPushNotify("Validation Error", "Please select at least one subject grade before submitting.", true);
+        return;
+    }
+    var examYear = document.getElementById("exam_year").value;
+    var examType = document.getElementById("exam_type").value;
+    var schoolNumber = document.getElementById("school_number").value.trim();
+    var schoolName = document.getElementById("school_name").value.trim().toUpperCase();
+    var gender = document.getElementById("gender").value;
+    var dob = document.getElementById("dob").value;
+    var packageData = {
+        password: API_PASSWORD,
+        examBody: activeExam,
+        secureId: secureId,
+        candidate_name: candidateName.toUpperCase(),
+        exam_number: rawExamNum,
+        exam_year: examYear,
+        exam_type: examType,
+        school_number: schoolNumber,
+        school_name: schoolName,
+        gender: gender,
+        dob: dob,
+        subjects: payloadSub,
+        qr_link: qrCodeData
+    };
+    fetch(EXAM_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(packageData)
+    }).then(function(resp) {
+        return resp.text();
+    }).then(function(responseText) {
         if (!responseText || responseText.trim() === "") {
             showLoading(false);
-            showPushNotify("Server Error", "Server returned empty response. Status: " + resp.status, true);
+            showPushNotify("Server Error", "Server returned empty response. Backend may be down.", true);
             return;
         }
-
-        var resData;
-        try {
-            resData = JSON.parse(responseText);
-        } catch(parseErr) {
-            showLoading(false);
-            showPushNotify("Server Error", "Server returned invalid data. Status: " + resp.status + " Response: " + responseText.substring(0, 200), true);
-            return;
-        }
-
+        var resData = JSON.parse(responseText);
         if(resData.success) {
             localStorage.removeItem("draft_" + activeExam);
             document.getElementById("exam-form").reset();
@@ -847,21 +801,19 @@ document.getElementById("sub-btn").addEventListener("click", async function() {
             for(var i = 0; i < remarks3.length; i++) {
                 remarks3[i].value = "";
             }
-
             var usersStore = JSON.parse(localStorage.getItem("admin_users") || "[]");
             usersStore.push({ name: packageData.candidate_name, secureId: secureId, code: resData.code });
             localStorage.setItem("admin_users", JSON.stringify(usersStore));
-
             showPushNotify("Transmission Successful", "Database synchronization finalized. Secure verification code generated below:", false, resData.code);
             document.getElementById("total-count-display").innerText = resData.totalCount || "0";
         } else {
             showPushNotify("Server Error", resData.error || "The server rejected the transaction.", true);
         }
-    } catch(e) {
-        showPushNotify("Transmission Error", "System exception detected: " + e.message, true);
-    } finally {
         showLoading(false);
-    }
+    }).catch(function(e) {
+        showLoading(false);
+        showPushNotify("Transmission Error", "System exception detected: " + e.message, true);
+    });
 });
 
 document.getElementById("copy-notify-btn").addEventListener("click", function() {
@@ -873,26 +825,33 @@ document.getElementById("copy-notify-btn").addEventListener("click", function() 
     document.getElementById("copy-notify-btn").innerText = "Copied!";
     setTimeout(function() {
         document.getElementById("copy-notify-btn").innerText = originalText;
+        lockPageForToken();
     }, 2000);
+});
+
+document.getElementById("notify-code").addEventListener("click", function() {
+    var codeText = document.getElementById("notify-code").innerText;
+    if(navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(codeText);
+    }
 });
 
 document.getElementById("close-notify").addEventListener("click", function() {
     document.getElementById("notification-container").classList.add("hidden");
+    lockPageForToken();
 });
 
-document.getElementById("open-admin").addEventListener("click", async function() {
+document.getElementById("open-admin").addEventListener("click", function() {
     document.getElementById("admin-panel").classList.remove("hidden");
-    await syncLocalData();
+    syncLocalData();
 });
 
 document.getElementById("close-admin").addEventListener("click", function() {
     document.getElementById("admin-panel").classList.add("hidden");
 });
 
-async function syncLocalData() {
-    try {
-        var r = await fetch(EXAM_API);
-        var responseText = await r.text();
+function syncLocalData() {
+    fetch(EXAM_API).then(function(r) { return r.text(); }).then(function(responseText) {
         if (responseText && responseText.trim() !== "") {
             var d = JSON.parse(responseText);
             if(d.success) {
@@ -902,14 +861,12 @@ async function syncLocalData() {
                     renderAdminList(d.users);
                 }
             }
-        } else {
-            throw new Error("Empty response");
         }
-    } catch(e) {
+    }).catch(function() {
         var localUsers = JSON.parse(localStorage.getItem("admin_users") || "[]");
         document.getElementById("total-count-display").innerText = localUsers.length;
         renderAdminList(localUsers);
-    }
+    });
 }
 
 function renderAdminList(users) {
