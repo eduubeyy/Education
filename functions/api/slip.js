@@ -1,14 +1,14 @@
 export async function onRequest(context) {
   const { request, env } = context;
   const origin = request.headers.get("Origin");
-  
+
   const allowedOrigins = [
     "https://educationv2.pages.dev",
     "http://localhost:8080"
   ];
-  
+
   let corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
-  
+
   const corsHeaders = {
     "Access-Control-Allow-Origin": corsOrigin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -29,7 +29,7 @@ export async function onRequest(context) {
 
   try {
     const body = await request.json();
-    const inputCode = body.code ? body.code.trim() : null;
+    const inputCode = body.code ? String(body.code).trim() : null;
 
     if (!inputCode || inputCode.length !== 6) {
       return new Response(JSON.stringify({ success: false, message: "Invalid code format supplied" }), {
@@ -54,12 +54,12 @@ export async function onRequest(context) {
     let targetExamBody = null;
 
     for (const branch of branches) {
-      const fetchUrl = `${cleanedRtdb}/Exam_Data/${branch}.json?auth=${secret}`;
+      const fetchUrl = cleanedRtdb + "/Exam_Data/" + branch + ".json?auth=" + secret;
       const response = await fetch(fetchUrl);
-      
+
       if (response.ok) {
         const fullBranchNode = await response.json();
-        if (fullBranchNode) {
+        if (fullBranchNode && typeof fullBranchNode === "object") {
           for (const secureId in fullBranchNode) {
             const currentRecord = fullBranchNode[secureId];
             if (currentRecord && String(currentRecord.success_code) === String(inputCode)) {
@@ -70,12 +70,13 @@ export async function onRequest(context) {
           }
         }
       }
+
       if (matchedData) break;
     }
 
     if (!matchedData) {
       return new Response(JSON.stringify({ success: false, message: "Verification entry not found" }), {
-        status: 404,
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
@@ -88,7 +89,7 @@ export async function onRequest(context) {
     });
 
   } catch (err) {
-    return new Response(JSON.stringify({ success: false, message: "Internal application processor error" }), {
+    return new Response(JSON.stringify({ success: false, message: "Internal application processor error: " + err.message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
