@@ -19,8 +19,8 @@ export async function onRequest(context) {
         "Content-Type": "application/json"
     };
 
-    const rtdb = (env.FIREBASE_RTDB_URL || "").replace(/\/+$/, "");
-    const secret = env.FIREBASE_SECRET || "";
+    const rtdb = env.FIREBASE_RTDB_URL;
+    const secret = env.FIREBASE_SECRET;
 
     if (!rtdb || !secret) {
         return new Response(JSON.stringify({ success: false, error: "Server configuration error" }), {
@@ -46,12 +46,10 @@ export async function onRequest(context) {
                     headers: corsHeaders
                 });
             }
-
             let total = 0;
             if (dbData.Total_Exam && dbData.Total_Exam.count) {
                 total = dbData.Total_Exam.count;
             }
-
             const flatUsers = [];
             if (dbData.Neco) {
                 Object.keys(dbData.Neco).forEach(function(sid) {
@@ -75,7 +73,6 @@ export async function onRequest(context) {
                     }
                 });
             }
-
             return new Response(JSON.stringify({ success: true, totalCount: total, users: flatUsers }), {
                 status: 200,
                 headers: corsHeaders
@@ -99,26 +96,21 @@ export async function onRequest(context) {
                     headers: corsHeaders
                 });
             }
-
             if (!body.password || body.password !== "@haruna66") {
                 return new Response(JSON.stringify({ success: false, error: "Invalid access password" }), {
                     status: 401,
                     headers: corsHeaders
                 });
             }
-
             const targetBranch = (body.examBody && body.examBody.toLowerCase() === "waec") ? "Waec" : "Neco";
             const secureId = body.secureId || "";
-
             if (!secureId || !body.candidate_name || !body.exam_number) {
                 return new Response(JSON.stringify({ success: false, error: "Missing required fields" }), {
                     status: 400,
                     headers: corsHeaders
                 });
             }
-
             const codeSeed = Math.floor(100000 + Math.random() * 900000).toString();
-
             const recordData = {
                 candidate_name: body.candidate_name,
                 exam_number: body.exam_number,
@@ -133,14 +125,12 @@ export async function onRequest(context) {
                 success_code: codeSeed,
                 created_at: new Date().toISOString()
             };
-
             const nodeUrl = rtdb + "/Exam_Data/" + targetBranch + "/" + secureId + ".json?auth=" + secret;
             const saveRecord = await fetch(nodeUrl, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(recordData)
             });
-
             if (!saveRecord.ok) {
                 const errText = await saveRecord.text();
                 return new Response(JSON.stringify({ success: false, error: "Firebase save failed: " + errText.substring(0, 200) }), {
@@ -148,7 +138,6 @@ export async function onRequest(context) {
                     headers: corsHeaders
                 });
             }
-
             const counterUrl = rtdb + "/Exam_Data/Total_Exam/count.json?auth=" + secret;
             const counterResp = await fetch(counterUrl);
             let currentCount = 0;
@@ -157,13 +146,11 @@ export async function onRequest(context) {
                 currentCount = Number(countData) || 0;
             }
             currentCount = currentCount + 1;
-
             await fetch(counterUrl, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(currentCount)
             });
-
             return new Response(JSON.stringify({
                 success: true,
                 code: codeSeed,
@@ -172,7 +159,6 @@ export async function onRequest(context) {
                 status: 200,
                 headers: corsHeaders
             });
-
         } catch (err) {
             return new Response(JSON.stringify({ success: false, error: "Server error: " + err.message }), {
                 status: 500,
