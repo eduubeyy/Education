@@ -119,10 +119,16 @@ export async function onRequest(context) {
                     headers: corsHeaders
                 });
             }
+            const gateUrl = rtdbBase + "/token_gate.json?auth=" + secret;
+            await fetch(gateUrl, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify("true")
+            });
             return new Response(JSON.stringify({
                 success: true,
                 token: newToken,
-                message: "New token generated"
+                message: "New token generated and gate activated"
             }), {
                 status: 200,
                 headers: corsHeaders
@@ -139,6 +145,22 @@ export async function onRequest(context) {
             return new Response(JSON.stringify({
                 success: true,
                 token_needed: gateStatus === "true"
+            }), {
+                status: 200,
+                headers: corsHeaders
+            });
+        }
+
+        if (action === "close_gate") {
+            const gateUrl = rtdbBase + "/token_gate.json?auth=" + secret;
+            await fetch(gateUrl, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify("false")
+            });
+            return new Response(JSON.stringify({
+                success: true,
+                message: "Gate closed"
             }), {
                 status: 200,
                 headers: corsHeaders
