@@ -33,7 +33,7 @@ export async function onRequest(context) {
 
     if (!inputCode || inputCode.length !== 6) {
       return new Response(JSON.stringify({ success: false, message: "Invalid code format supplied" }), {
-        status: 400,
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
@@ -49,29 +49,52 @@ export async function onRequest(context) {
     }
 
     const cleanedRtdb = rtdb.endsWith("/") ? rtdb.slice(0, -1) : rtdb;
-    const branches = ["NECO_DATA", "WAEC_DATA"];
     let matchedData = null;
     let targetExamBody = null;
 
+    // Search path 1: Exam_Data/NECO_DATA and Exam_Data/WAEC_DATA
+    const branches = ["NECO_DATA", "WAEC_DATA"];
     for (const branch of branches) {
       const fetchUrl = cleanedRtdb + "/Exam_Data/" + branch + ".json?auth=" + secret;
       const response = await fetch(fetchUrl);
-
       if (response.ok) {
         const fullBranchNode = await response.json();
         if (fullBranchNode && typeof fullBranchNode === "object") {
           for (const secureId in fullBranchNode) {
             const currentRecord = fullBranchNode[secureId];
-            if (currentRecord && String(currentRecord.success_code) === String(inputCode)) {
-              matchedData = { ...currentRecord, secureId: secureId };
-              targetExamBody = branch === "NECO_DATA" ? "neco" : "waec";
-              break;
+            if (currentRecord) {
+              const codeToCheck = currentRecord.success_code || currentRecord.code || "";
+              if (String(codeToCheck) === String(inputCode)) {
+                matchedData = { ...currentRecord, secureId: secureId };
+                targetExamBody = branch === "NECO_DATA" ? "neco" : "waec";
+                break;
+              }
             }
           }
         }
       }
-
       if (matchedData) break;
+    }
+
+    // Search path 2: users node (where exam.js stores data)
+    if (!matchedData) {
+      const usersUrl = cleanedRtdb + "/users.json?auth=" + secret;
+      const usersResp = await fetch(usersUrl);
+      if (usersResp.ok) {
+        const usersData = await usersResp.json();
+        if (usersData && typeof usersData === "object") {
+          for (const userId in usersData) {
+            const currentRecord = usersData[userId];
+            if (currentRecord) {
+              const codeToCheck = currentRecord.success_code || currentRecord.code || "";
+              if (String(codeToCheck) === String(inputCode)) {
+                matchedData = { ...currentRecord, secureId: currentRecord.secureId || userId };
+                break;
+              }
+            }
+          }
+        }
+      }
     }
 
     if (!matchedData) {
@@ -81,7 +104,7 @@ export async function onRequest(context) {
       });
     }
 
-    matchedData.examBody = targetExamBody;
+    matchedData.examBody = targetExamBody || matchedData.examBody || "neco";
 
     return new Response(JSON.stringify({ success: true, data: matchedData }), {
       status: 200,
