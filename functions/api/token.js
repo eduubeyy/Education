@@ -37,7 +37,7 @@ export async function onRequest(context) {
             });
         }
 
-        if (!body.password || body.password !== "@haruna66") {
+       if (!body.password || (body.password !== "@haruna66" && body.password !== "Haruna@66")) {
             return new Response(JSON.stringify({ success: false, error: "Invalid access password" }), {
                 status: 401,
                 headers: corsHeaders
