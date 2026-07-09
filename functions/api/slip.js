@@ -32,7 +32,7 @@ export async function onRequest(context) {
     const inputCode = body.code ? String(body.code).trim() : null;
 
     if (!inputCode || inputCode.length !== 6) {
-      return new Response(JSON.stringify({ success: false, message: "Invalid code format supplied" }), {
+      return new Response(JSON.stringify({ success: false, message: "Invalid code format" }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
@@ -52,48 +52,49 @@ export async function onRequest(context) {
     let matchedData = null;
     let targetExamBody = null;
 
-    // Search path 1: Exam_Data/NECO_DATA and Exam_Data/WAEC_DATA
-    const branches = ["NECO_DATA", "WAEC_DATA"];
-    for (const branch of branches) {
-      const fetchUrl = cleanedRtdb + "/Exam_Data/" + branch + ".json?auth=" + secret;
-      const response = await fetch(fetchUrl);
-      if (response.ok) {
-        const fullBranchNode = await response.json();
-        if (fullBranchNode && typeof fullBranchNode === "object") {
-          for (const secureId in fullBranchNode) {
-            const currentRecord = fullBranchNode[secureId];
-            if (currentRecord) {
-              const codeToCheck = currentRecord.success_code || currentRecord.code || "";
-              if (String(codeToCheck) === String(inputCode)) {
-                matchedData = { ...currentRecord, secureId: secureId };
-                targetExamBody = branch === "NECO_DATA" ? "neco" : "waec";
-                break;
-              }
+    // Search path 1: users node (where exam.js stores data with code field)
+    const usersUrl = cleanedRtdb + "/users.json?auth=" + secret;
+    const usersResp = await fetch(usersUrl);
+    if (usersResp.ok) {
+      const usersData = await usersResp.json();
+      if (usersData && typeof usersData === "object") {
+        for (const userId in usersData) {
+          const currentRecord = usersData[userId];
+          if (currentRecord) {
+            const codeToCheck = currentRecord.code || currentRecord.success_code || "";
+            if (String(codeToCheck) === String(inputCode)) {
+              matchedData = { ...currentRecord, secureId: currentRecord.secureId || userId };
+              targetExamBody = "neco";
+              break;
             }
           }
         }
       }
-      if (matchedData) break;
     }
 
-    // Search path 2: users node (where exam.js stores data)
+    // Search path 2: Exam_Data/NECO_DATA and Exam_Data/WAEC_DATA
     if (!matchedData) {
-      const usersUrl = cleanedRtdb + "/users.json?auth=" + secret;
-      const usersResp = await fetch(usersUrl);
-      if (usersResp.ok) {
-        const usersData = await usersResp.json();
-        if (usersData && typeof usersData === "object") {
-          for (const userId in usersData) {
-            const currentRecord = usersData[userId];
-            if (currentRecord) {
-              const codeToCheck = currentRecord.success_code || currentRecord.code || "";
-              if (String(codeToCheck) === String(inputCode)) {
-                matchedData = { ...currentRecord, secureId: currentRecord.secureId || userId };
-                break;
+      const branches = ["NECO_DATA", "WAEC_DATA"];
+      for (const branch of branches) {
+        const fetchUrl = cleanedRtdb + "/Exam_Data/" + branch + ".json?auth=" + secret;
+        const response = await fetch(fetchUrl);
+        if (response.ok) {
+          const fullBranchNode = await response.json();
+          if (fullBranchNode && typeof fullBranchNode === "object") {
+            for (const secureId in fullBranchNode) {
+              const currentRecord = fullBranchNode[secureId];
+              if (currentRecord) {
+                const codeToCheck = currentRecord.success_code || currentRecord.code || "";
+                if (String(codeToCheck) === String(inputCode)) {
+                  matchedData = { ...currentRecord, secureId: secureId };
+                  targetExamBody = branch === "NECO_DATA" ? "neco" : "waec";
+                  break;
+                }
               }
             }
           }
         }
+        if (matchedData) break;
       }
     }
 
@@ -112,7 +113,7 @@ export async function onRequest(context) {
     });
 
   } catch (err) {
-    return new Response(JSON.stringify({ success: false, message: "Internal application processor error: " + err.message }), {
+    return new Response(JSON.stringify({ success: false, message: "Internal error: " + err.message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
