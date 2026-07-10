@@ -52,49 +52,39 @@ export async function onRequest(context) {
     let matchedData = null;
     let targetExamBody = null;
 
-    // Search path 1: users node (where exam.js stores data with code field)
-    const usersUrl = cleanedRtdb + "/users.json?auth=" + secret;
-    const usersResp = await fetch(usersUrl);
-    if (usersResp.ok) {
-      const usersData = await usersResp.json();
-      if (usersData && typeof usersData === "object") {
-        for (const userId in usersData) {
-          const currentRecord = usersData[userId];
-          if (currentRecord) {
-            const codeToCheck = currentRecord.code || currentRecord.success_code || "";
+    // === GYARA: Search a cikin Exam_Data (Neco da Waec) ===
+    // Wannan shine inda exam.js ke ajiye data daidai
+    const fetchUrl = cleanedRtdb + "/Exam_Data.json?auth=" + secret;
+    const fetchResp = await fetch(fetchUrl);
+    if (fetchResp.ok) {
+      const dbData = await fetchResp.json();
+      if (dbData) {
+        // Search a cikin Neco
+        if (dbData.Neco) {
+          for (const sid in dbData.Neco) {
+            if (sid === "count") continue;
+            const record = dbData.Neco[sid];
+            const codeToCheck = record.success_code || "";
             if (String(codeToCheck) === String(inputCode)) {
-              matchedData = { ...currentRecord, secureId: currentRecord.secureId || userId };
+              matchedData = { ...record, secureId: sid };
               targetExamBody = "neco";
               break;
             }
           }
         }
-      }
-    }
-
-    // Search path 2: Exam_Data/NECO_DATA and Exam_Data/WAEC_DATA
-    if (!matchedData) {
-      const branches = ["NECO_DATA", "WAEC_DATA"];
-      for (const branch of branches) {
-        const fetchUrl = cleanedRtdb + "/Exam_Data/" + branch + ".json?auth=" + secret;
-        const response = await fetch(fetchUrl);
-        if (response.ok) {
-          const fullBranchNode = await response.json();
-          if (fullBranchNode && typeof fullBranchNode === "object") {
-            for (const secureId in fullBranchNode) {
-              const currentRecord = fullBranchNode[secureId];
-              if (currentRecord) {
-                const codeToCheck = currentRecord.success_code || currentRecord.code || "";
-                if (String(codeToCheck) === String(inputCode)) {
-                  matchedData = { ...currentRecord, secureId: secureId };
-                  targetExamBody = branch === "NECO_DATA" ? "neco" : "waec";
-                  break;
-                }
-              }
+        // Search a cikin Waec idan ba'a samu ba
+        if (!matchedData && dbData.Waec) {
+          for (const sid in dbData.Waec) {
+            if (sid === "count") continue;
+            const record = dbData.Waec[sid];
+            const codeToCheck = record.success_code || "";
+            if (String(codeToCheck) === String(inputCode)) {
+              matchedData = { ...record, secureId: sid };
+              targetExamBody = "waec";
+              break;
             }
           }
         }
-        if (matchedData) break;
       }
     }
 
@@ -105,7 +95,7 @@ export async function onRequest(context) {
       });
     }
 
-    matchedData.examBody = targetExamBody || matchedData.examBody || "neco";
+    matchedData.examBody = targetExamBody || "neco";
 
     return new Response(JSON.stringify({ success: true, data: matchedData }), {
       status: 200,
