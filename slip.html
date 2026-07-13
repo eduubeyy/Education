@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Result Slip Verification Portal</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+    <title>Result Verification Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Arial', 'Helvetica', sans-serif;
         }
-
         body {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
             min-height: 100vh;
@@ -23,139 +21,130 @@
             align-items: center;
             padding: 20px;
         }
-
         #search-gate {
             background: rgba(30, 41, 59, 0.95);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 40px;
-            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px 30px;
+            border-radius: 20px;
             width: 100%;
-            max-width: 420px;
+            max-width: 440px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
             text-align: center;
         }
-
         #search-gate h2 {
             color: #ffffff;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
         }
-
         #search-gate p {
             color: #94a3b8;
             font-size: 14px;
-            margin-bottom: 24px;
+            margin-bottom: 30px;
+            line-height: 1.5;
         }
-
-        .code-input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
+        .code-input-container {
+            position: relative;
+            margin-bottom: 20px;
         }
-
-        .code-input-group input {
-            flex: 1;
-            padding: 6px;
-            background: rgba(15, 23, 42, 0.8);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+        .code-input-container input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid #334155;
             border-radius: 12px;
             color: #ffffff;
-            font-size: 28px;
+            font-size: 24px;
             text-align: center;
-            letter-spacing: 8px;
+            letter-spacing: 6px;
             font-weight: 700;
-            font-family: 'SF Mono', 'Fira Code', monospace;
             outline: none;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .code-input-group input:focus {
+        .code-input-container input:focus {
             border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
         }
-
-        .code-input-group input::placeholder {
+        .code-input-container input::placeholder {
             color: #475569;
-            letter-spacing: 4px;
-            font-size: 20px;
-            font-weight: 400;
+            letter-spacing: 6px;
         }
-
-        #search-gate button {
+        #search-submit {
             width: 100%;
             padding: 16px;
             background: linear-gradient(135deg, #3b82f6, #2563eb);
             color: #ffffff;
             border: none;
             border-radius: 12px;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
-
-        #search-gate button:hover {
+        #search-submit:hover {
             transform: translateY(-1px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
         }
-
-        #search-gate button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
+        #search-submit:active {
+            transform: translateY(1px);
         }
-
         .loading-state {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
             padding: 20px 0;
         }
-
         .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
+            width: 45px;
+            height: 45px;
+            border: 3.5px solid rgba(255, 255, 255, 0.1);
             border-top-color: #3b82f6;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-
         .loading-text {
             color: #94a3b8;
             font-size: 14px;
         }
-
         .hidden {
             display: none !important;
         }
-
         #portal-container {
             width: 100%;
-            max-width: 900px;
+            max-width: 210mm;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
             align-items: center;
         }
-
+        .a4-wrapper {
+            background: white;
+            color: #000;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 0;
+            margin: 0 auto;
+            position: relative;
+            box-sizing: border-box;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
         .action-buttons {
             display: flex;
-            gap: 12px;
+            gap: 15px;
             width: 100%;
-            max-width: 210mm;
+            margin-bottom: 30px;
         }
-
         .action-buttons button {
             flex: 1;
-            padding: 14px 20px;
+            padding: 15px 25px;
             font-size: 15px;
             font-weight: 600;
             border: none;
@@ -163,318 +152,375 @@
             cursor: pointer;
             color: white;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-
         .action-buttons button:hover {
-            transform: translateY(-1px);
+            transform: translateY(-2px);
         }
-
         #print-btn {
             background: linear-gradient(135deg, #059669, #10b981);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
         }
-
-        #print-btn:hover {
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
-        }
-
         #pdf-btn {
             background: linear-gradient(135deg, #dc2626, #ef4444);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
         }
-
-        #pdf-btn:hover {
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
-        }
-
         #back-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
-            max-width: 60px;
+            background: #475569;
+            max-width: 100px;
         }
 
-        .a4-wrapper {
-            background: white;
-            color: #000;
-            width: 210mm;
-            height: 297mm;
-            padding: 0;
-            margin: 0 auto;
-            position: relative;
-            box-sizing: border-box;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            border-radius: 4px;
-        }
-
+       
         .neco-slip {
             width: 100%;
-            height: 100%;
-            padding: 15mm 15mm 12mm 15mm;
-            position: relative;
+            padding: 12mm 15mm;
             box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+            color: #000;
+            background: #fff;
+            position: relative;
         }
-
+        .neco-outer-frame {
+            border: 1.5px solid #000;
+            padding: 25px 0 0 0; 
+            width: 100%;
+            min-height: 270mm;
+            display: flex;
+            flex-direction: column;
+        }
         .neco-slip .top-strip {
             text-align: center;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            border-bottom: 2px solid #000;
-            padding-bottom: 4px;
-            margin-bottom: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            padding: 0 25px;
         }
-
         .neco-slip .logo-row {
             text-align: center;
-            padding: 4px 0;
+            margin-bottom: 12px;
+            padding: 0 25px;
         }
-
         .neco-slip .logo-row img {
-            height: 70px;
-            object-fit: contain;
+            height: 60px;
+            width: auto;
         }
-
         .neco-slip .council-name {
             text-align: center;
-            font-size: 17px;
-            font-weight: 700;
-            letter-spacing: 1px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+            padding: 0 25px;
         }
-
         .neco-slip .exam-name {
             text-align: center;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 2px;
+            font-size: 13.5px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 0 25px;
         }
-
         .neco-slip .term-badge-wrap {
             text-align: center;
-            margin-bottom: 14px;
+            margin-bottom: 25px;
+            padding: 0 25px;
         }
-
         .neco-slip .term-badge {
             display: inline-block;
-            border: 1.5px solid #000;
-            padding: 3px 18px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .neco-slip .candidate-row {
-            display: flex;
             border: 1px solid #000;
+            padding: 8px 0px;
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 140px;
+        }
+        .neco-slip .info-grid {
+            
+            border-bottom: 1.5px solid #000;
+            width: 100%;
+            margin-bottom: 0px;
+            padding: 10px 0;
+        }
+        .neco-slip .info-row {
+            display: flex;
+            width: 100%;
+            margin-bottom: 12px;
+            padding: 0 25px; 
+        }
+        .neco-slip .info-row:last-child {
             margin-bottom: 0;
         }
-
-        .neco-slip .candidate-row .half {
+        .neco-slip .info-cell {
             flex: 1;
-            padding: 6px 8px;
-            border-right: 1px solid #000;
+            padding: 2px 0;
         }
-
-        .neco-slip .candidate-row .half:last-child {
-            border-right: none;
+        .neco-slip{
+            
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            color: #000;           
+             
         }
-
-        .neco-slip .candidate-row .field-label {
-            font-size: 9px;
+        
+       
+.neco-slip .field-value {
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #000;
+    border-top: 1.5px solid #000;    
+ 
+    padding-top: 30px;       
+    margin-top: -4px;        
+    display: block;          
+    line-height: 1.2;        
+}
+        
+              
+         .field-valu {
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            color: #000;
+             
+        }
+        
+        .neco-slip{
+             font-size: 11px;
+            color: #666;
+            font-style: italic;
+           
+        }
+        
+         .field-label {
+        
+            font-size: 11px;
             color: #666;
             font-style: italic;
         }
-
-        .neco-slip .candidate-row .field-value {
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .neco-slip .info-grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            border: 1px solid #000;
-            border-top: none;
-        }
-
-        .neco-slip .info-grid-3 > div {
-            padding: 5px 8px;
-            border-right: 1px solid #000;
-        }
-
-        .neco-slip .info-grid-3 > div:last-child {
-            border-right: none;
-        }
-
-        .neco-slip .info-grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            border: 1px solid #000;
-            border-top: none;
-        }
-
-        .neco-slip .info-grid-2 > div {
-            padding: 5px 8px;
-            border-right: 1px solid #000;
-        }
-
-        .neco-slip .info-grid-2 > div:last-child {
-            border-right: none;
-        }
-
         .neco-slip .subjects-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 12px;
-            border: 1px solid #000;
+            margin-bottom: 20px;
+            
+            
         }
-
-        .neco-slip .subjects-table th {
-            border: 1px solid #000;
-            padding: 5px 8px;
-            font-size: 11px;
-            font-weight: 700;
-            text-align: left;
-            background: #f0f0f0;
-        }
-
-        .neco-slip .subjects-table td {
-            border: 1px solid #000;
-            padding: 4px 8px;
-            font-size: 12px;
-        }
-
-        .neco-slip .neco-footer {
-            position: absolute;
-            bottom: 10mm;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 10px;
-            font-weight: 700;
-        }
-
-        .neco-slip .qr-corner {
-            position: absolute;
-            bottom: 22mm;
-            right: 15mm;
-            border: 1px solid #000;
-            padding: 3px;
-            background: white;
-        }
-
-        .waec-slip {
-            width: 100%;
-            height: 100%;
-            padding: 10mm 15mm 12mm 15mm;
-            position: relative;
-            box-sizing: border-box;
-        }
-
-        .waec-slip .waec-header-img {
-            width: 100%;
-            max-height: 75px;
-            object-fit: contain;
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .waec-slip .waec-results-title {
-            font-size: 24px;
-            color: #8c8c8c;
-            font-weight: 400;
-            margin-bottom: 18px;
-            margin-top: 5px;
-        }
-
-        .waec-slip .waec-section-title {
-            font-size: 14px;
-            color: #3b2a82;
-            font-weight: 700;
-            margin-bottom: 10px;
-            margin-top: 12px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 4px;
-        }
-
-        .waec-slip .waec-info-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .waec-slip .waec-info-table td {
-            padding: 4px 0;
+     
+       
+    .neco-slip    .subjects-table th {
+            border-bottom: 1.5px solid #000;
+            padding: 10px 10px;
             font-size: 13px;
-            vertical-align: top;
+            font-weight: bold;
+            text-align: left;
         }
-
-        .waec-slip .waec-info-table td.label {
-            width: 35%;
+        .neco-slip .subjects-table td {
+            padding: 7px 10px;
+            font-size: 13px;
             color: #000;
         }
-
-        .waec-slip .waec-info-table td.value {
-            width: 65%;
+        .neco-slip .subjects-table th.sn-col,
+        .neco-slip .subjects-table td.sn-col {
+            border-right: 1.5px solid #000; 
+            text-align: center;
+            width: 8%;
+            padding: 8px 5px;
+        }
+        .neco-slip .subjects-table th.sub-col,
+        .neco-slip .subjects-table td.sub-col {
+            padding-left: 20px;
+            width: 52%;
+        }
+        .neco-slip .subjects-table tr:last-child td {
+            border-bottom: 1.5px solid #000;
+        }
+        .neco-slip .bottom-layout-area {
+            margin-top: auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .neco-slip .qr-container-row {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 25px;
+            margin-bottom: 15px;
+        }
+        .neco-slip .qr-right-absolute {
+            width: 110px;
+            height: 110px;
+            border: 1.5px solid #000; 
+            padding: 5px;
+            background: #fff;
+        }
+        .neco-slip .qr-right-absolute img {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .neco-slip .copyright-box-border {
+            width: 100%;
+            border-top: 1.5px solid #000;
+            padding: 12px 0;
+            text-align: center;
+        }
+        .neco-slip .copyright-center-zone {
+            font-size: 12px;
+            color: #000;
+            display: inline-block;
         }
 
-        .waec-slip .waec-subjects-table {
+       
+        .waec-slip {
             width: 100%;
-            border-collapse: collapse;
+            padding: 15mm 20mm;
+            box-sizing: border-box;
+            background: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .waec-slip .waec-header-img {
+            width: 100%;
+            max-height: 85px;
+            object-fit: contain;
+            display: block;
+            margin-bottom: 25px;
+        }
+        .waec-slip .waec-results-title {
+            font-size: 28px;
+            color: #999999;
+            font-weight: normal;
             margin-bottom: 20px;
         }
-
-        .waec-slip .waec-subjects-table td {
-            padding: 4px 0;
-            font-size: 13px;
-            border: none;
+        .waec-slip .waec-section-layout {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
         }
-
-        .waec-slip .waec-subjects-table td.subject-cell {
-            width: 60%;
-            text-transform: uppercase;
+        .waec-slip .waec-left-content {
+            width: 65%;
         }
-
-        .waec-slip .waec-subjects-table td.grade-cell {
-            width: 40%;
+        
+        
+       .waec-slip .waec-right-qr-content {
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-top: 20px;
         }
-
-        .waec-slip .waec-card-info {
+        .waec-slip .waec-section-title {
+            font-size: 15px;
+            color: #1e1b4b;
+            font-weight: bold;
+            margin-bottom: 12px;
+            margin-top: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+        }
+        .waec-slip .waec-info-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 15px;
         }
-
-        .waec-slip .waec-card-info td {
-            padding: 4px 0;
-            font-size: 13px;
+        .waec-slip .waec-info-table td {
+            padding: 5px 0;
+            font-size: 14px;
+            vertical-align: top;
         }
+        .waec-slip .waec-info-table td.label {
+            width: 45%;
+            color: #000;
+        }
+        .waec-slip .waec-info-table td.value {
+            width: 55%;
+            font-weight: normal;
+        }
+        .waec-slip .waec-subjects-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        .waec-slip .waec-subjects-table td {
+            padding: 5px 0;
+            font-size: 14px;
+        }
+        .waec-slip .waec-subjects-table td.subject-cell {
+            width: 45%;
+            text-transform: uppercase;
+            color: #1e1b4b;
+        }
+        .waec-slip .waec-subjects-table td.grade-cell {
+            width: 55%;
+            color: #1e1b4b;
+        }
+                
+                
+        .waec-slip {
+    width: 100%;
+    padding: 15mm 20mm;
+    box-sizing: border-box;
+    background: #fff;
+    font-family: Arial, sans-serif;
+    position: relative; 
+    min-height: 270mm; 
+}
 
+.waec-slip .waec-qr-wrapper {
+    position: absolute;
+    bottom: 240px;      
+    right: 70px;        
+    width: 110px;
+    height: 110px;
+    border: 1.5px solid #000; 
+    padding: 5px;
+    background: #fff;
+    z-index: 10;
+}
+
+.waec-slip .waec-qr-wrapper img {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+               
+        
+        
         .waec-slip .waec-note {
-            font-size: 10px;
-            font-weight: 700;
-            line-height: 1.4;
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .waec-slip .waec-qr-row {
-            display: flex;
-            align-items: center;
-            border-top: 1px solid #ccc;
-            padding-top: 12px;
-        }
-
-        .waec-slip .waec-qr-row .qr-area {
-            margin-right: 20px;
-        }
-
-        .waec-slip .waec-qr-row .plugin-msg {
-            font-size: 20px;
-            color: #888;
-        }
-
-        .waec-slip .waec-exam-desc {
             font-size: 11px;
-            color: #888;
-            margin-bottom: 3px;
+            font-weight: bold;
+            line-height: 1.5;
+            text-align: center;
+            margin-top: 55px;
+            margin-bottom: 20px;
+            width: 100%;
+            clear: both;
+        }
+        .waec-slip .waec-close-window {
+            text-align: right;
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .waec-slip .waec-footer-plugin-row {
+            border-top: 1px solid #ccc;
+            padding-top: 15px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .waec-slip .plugin-msg {
+            font-size: 22px;
+            color: #777;
+            font-weight: normal;
         }
 
         #notification-container {
@@ -489,85 +535,19 @@
             z-index: 1000;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
             min-width: 300px;
-            max-width: 420px;
             transform: translateX(calc(100% + 40px));
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        #notification-container.show {
-            transform: translateX(0);
-        }
-
-        #notification-container.success {
-            background: linear-gradient(135deg, #059669, #10b981);
-        }
-
-        #notification-container.error {
-            background: linear-gradient(135deg, #dc2626, #ef4444);
-        }
-
-        .notify-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .notify-content .notify-close {
-            margin-left: auto;
-            cursor: pointer;
-            font-size: 20px;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-            background: none;
-            border: none;
-            color: #ffffff;
-        }
-
-        .notify-content .notify-close:hover {
-            opacity: 1;
-        }
+        #notification-container.show { transform: translateX(0); }
+        #notification-container.success { background: linear-gradient(135deg, #059669, #10b981); }
+        #notification-container.error { background: linear-gradient(135deg, #dc2626, #ef4444); }
+        .notify-content { display: flex; align-items: center; gap: 12px; }
+        .notify-close { margin-left: auto; cursor: pointer; font-size: 20px; opacity: 0.7; background: none; border: none; color: white; }
 
         @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-
-            #search-gate, .action-buttons, #notification-container {
-                display: none !important;
-            }
-
-            #portal-container {
-                gap: 0;
-            }
-
-            .a4-wrapper {
-                box-shadow: none;
-                border-radius: 0;
-                margin: 0;
-                padding: 0;
-            }
-        }
-
-        @media (max-width: 800px) {
-            .a4-wrapper {
-                width: 100%;
-                height: auto;
-                min-height: 297mm;
-            }
-
-            .action-buttons {
-                flex-wrap: wrap;
-            }
-
-            .action-buttons button {
-                min-width: 120px;
-            }
-
-            .code-input-group input {
-                font-size: 22px;
-                letter-spacing: 4px;
-            }
+            body { background: white; padding: 0; }
+            #search-gate, .action-buttons, #notification-container { display: none !important; }
+            .a4-wrapper { box-shadow: none; border: none; margin: 0; padding: 0; }
         }
     </style>
 </head>
@@ -577,7 +557,7 @@
         <h2>Verify Result</h2>
         <p>Enter your 6-digit verification code to retrieve the result slip</p>
         <div id="gate-input-zone">
-            <div class="code-input-group">
+            <div class="code-input-container">
                 <input type="text" id="verification-code" maxlength="6" placeholder="000000" autocomplete="off">
             </div>
             <button id="search-submit">Fetch Record</button>
@@ -585,18 +565,18 @@
         <div id="gate-loading-zone" class="hidden">
             <div class="loading-state">
                 <div class="loading-spinner"></div>
-                <span class="loading-text">Querying secure database nodes...</span>
+                <span class="loading-text" id="loading-status-text">Querying secure database nodes...</span>
             </div>
         </div>
     </div>
 
     <div id="portal-container" class="hidden">
+        <div class="a4-wrapper" id="a4-target"></div>
         <div class="action-buttons">
-            <button id="back-btn" onclick="location.reload()">&larr;</button>
+            <button id="back-btn" onclick="location.reload()">Back</button>
             <button id="print-btn">Print Slip</button>
             <button id="pdf-btn">Save as PDF</button>
         </div>
-        <div class="a4-wrapper" id="a4-target"></div>
     </div>
 
     <div id="notification-container">
@@ -608,7 +588,6 @@
 
 <script>
 var SLIP_API = "https://educationv2.pages.dev/api/slip";
-
 var remarksMap = {
     "A1": "EXCELLENT", "B2": "VERY GOOD", "B3": "GOOD",
     "C4": "CREDIT", "C5": "CREDIT", "C6": "CREDIT",
@@ -631,9 +610,9 @@ document.getElementById("search-submit").addEventListener("click", function() {
         showNotification("Please enter a valid 6-digit verification code.", "error");
         return;
     }
-
     document.getElementById("gate-input-zone").classList.add("hidden");
     document.getElementById("gate-loading-zone").classList.remove("hidden");
+    document.getElementById("loading-status-text").textContent = "Querying secure database nodes...";
 
     fetch(SLIP_API, {
         method: "POST",
@@ -647,13 +626,10 @@ document.getElementById("search-submit").addEventListener("click", function() {
             resetGate();
             return;
         }
-
         var result = JSON.parse(responseText);
-
         if (result.success && result.data) {
-            localStorage.setItem("active_verified_slip", JSON.stringify(result.data));
-            renderSlipStructure(result.data);
-            showNotification("Record found successfully. Displaying result slip.", "success");
+            document.getElementById("loading-status-text").textContent = "Generating high-resolution security QR code...";
+            preloadAndRender(result.data);
         } else {
             showNotification(result.message || "No record found matching the supplied verification code.", "error");
             resetGate();
@@ -669,136 +645,185 @@ function resetGate() {
     document.getElementById("gate-input-zone").classList.remove("hidden");
 }
 
-function renderSlipStructure(data) {
+function preloadAndRender(data) {
+    var examNumber = data.exam_number || data.examNum || "";
+    var qrUrl = "";
+    
+    if (data.examBody === "neco") {
+        qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent("https://neco-gov-ng-v2.pages.dev/v3/?exam_number=" + examNumber);
+    } else {
+        qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent("https://waec-org-v2.pages.dev/v3/?exam_number=" + examNumber);
+    }
+
+    var img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = qrUrl;
+    
+    img.onload = function() {
+        renderSlipStructure(data, qrUrl);
+        showNotification("Record found successfully. Displaying result slip.", "success");
+    };
+    
+    img.onerror = function() {
+        renderSlipStructure(data, qrUrl);
+        showNotification("Loaded with standard QR rendering.", "success");
+    };
+}
+
+function renderSlipStructure(data, qrImgUrl) {
     document.getElementById("search-gate").classList.add("hidden");
     document.getElementById("portal-container").classList.remove("hidden");
-
     var container = document.getElementById("a4-target");
     container.innerHTML = "";
 
-    var examBody = (data.examBody || "").toLowerCase();
-
-    if (examBody === "neco") {
-        renderNecoSlip(container, data);
-    } else if (examBody === "waec") {
-        renderWaecSlip(container, data);
-    } else {
-        container.innerHTML = '<div style="padding:40px;text-align:center;color:#000;"><h2>Result Slip</h2><p style="margin-top:10px;color:#666;">Examination data retrieved successfully.</p><div id="generic-qr" style="margin:30px auto;text-align:center;"></div></div>';
-        setTimeout(function() {
-            var qrTarget = document.getElementById("generic-qr");
-            if (qrTarget && data.qr_link) {
-                QRCode.toCanvas(qrTarget, data.qr_link, { width: 120, margin: 1 });
-            }
-        }, 100);
+    if (data.examBody === "neco") {
+        renderNecoSlip(container, data, qrImgUrl);
+    } else if (data.examBody === "waec") {
+        renderWaecSlip(container, data, qrImgUrl);
     }
 }
 
-function renderNecoSlip(container, data) {
+function renderNecoSlip(container, data, qrImgUrl) {
     var slip = document.createElement("div");
     slip.className = "neco-slip";
 
-    var examYearDisplay = data.exam_year;
-    if (examYearDisplay && !examYearDisplay.includes("/")) {
-        examYearDisplay = "JUN/JUL " + examYearDisplay;
-    }
+    var examYear = data.exam_year || data.examYear || "2026";
+    var examYearDisplay = "JUN/JUL " + examYear;
+
+    var candidateName = (data.candidate_name || data.name || "").toUpperCase();
+    var examNumber = data.exam_number || data.examNum || "";
+    var schoolNumber = data.school_number || data.schoolNum || "";
+    var schoolName = (data.school_name || data.schoolName || "").toUpperCase();
+    var dob = data.dob || data.date_of_birth || "";
+    var examType = data.exam_type || data.examType || "Internal";
 
     var subjectRows = "";
     var count = 1;
-    if (data.subjects) {
-        if (typeof data.subjects === "object") {
-            var keys = Object.keys(data.subjects);
-            for (var i = 0; i < keys.length; i++) {
-                var sub = keys[i];
-                var gr = data.subjects[sub];
-                var rem = remarksMap[gr] || "PASS";
-                subjectRows += '<tr><td>' + count++ + '</td><td>' + sub + '</td><td><strong>' + gr + '</strong></td><td>' + rem + '</td></tr>';
-            }
+    var subjects = data.subjects || data.grades || {};
+    if (typeof subjects === "object") {
+        var keys = Object.keys(subjects);
+        for (var i = 0; i < keys.length; i++) {
+            var sub = keys[i];
+            var gr = subjects[sub];
+            var rem = remarksMap[gr] || "PASS";
+            subjectRows += '<tr><td class="sn-col">' + count++ + '</td><td class="sub-col">' + sub + '</td><td style="width:20%"><strong>' + gr + '</strong></td><td style="width:20%">' + rem + '</td></tr>';
         }
     }
 
     slip.innerHTML = `
-        <div class="top-strip">FEDERAL REPUBLIC OF NIGERIA</div>
-        <div class="logo-row"><img src="https://i.imgur.com/IrOmNnF.png" alt="NECO"></div>
-        <div class="council-name">NATIONAL EXAMINATIONS COUNCIL</div>
-        <div class="exam-name">SENIOR SCHOOL CERTIFICATE EXAMINATION (SSCE) RESULT</div>
-        <div class="term-badge-wrap"><div class="term-badge">${examYearDisplay || ''}</div></div>
-        <div class="candidate-row">
-            <div class="half"><div class="field-value">${data.candidate_name || ''}</div><div class="field-label">Candidate Name</div></div>
-            <div class="half"><div class="field-value">${data.dob || data.date_of_birth || ''}</div><div class="field-label">Date of Birth</div></div>
+        <div class="neco-outer-frame">
+            <div class="top-strip">FEDERAL REPUBLIC OF NIGERIA</div>
+            <div class="logo-row"><img src="https://i.imgur.com/IrOmNnF.png" alt="NECO"></div>
+            <div class="council-name">NATIONAL EXAMINATIONS COUNCIL</div>
+            <div class="exam-name">SENIOR SCHOOL CERTIFICATE EXAMINATION (SSCE) RESULT</div>
+            <div class="term-badge-wrap"><div class="term-badge">${examYearDisplay}</div></div>
+            
+            <div class="info-grid">
+                <div class="info-row">
+                    <div class="info-cell" style="flex: 2.2;"><div class="field-valu">${candidateName}</div><div class="field-label">Candidate Name</div></div>
+                    <div class="info-cell" style="flex: 1.8;"><div class="field-valu">${dob}</div><div class="field-label">Date of Birth</div></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-cell" style="flex: 2.2;"><div class="field-value">${examNumber}</div><div class="field-label">Registration Number</div></div>
+                    <div class="info-cell" style="flex: 1.1;"><div class="field-value">${examYear}</div><div class="field-label">Exam Year</div></div>
+                    <div class="info-cell" style="flex: 0.7;"><div class="field-value">${examType}</div><div class="field-label">Exam Type</div></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-cell" style="flex: 2.2;"><div class="field-value">${schoolNumber}</div><div class="field-label">Centre Number</div></div>
+                    <div class="info-cell" style="flex: 1.8;"><div class="field-value">${schoolName}</div><div class="field-label">Centre Name</div></div>
+                </div>
+            </div>
+
+            <table class="subjects-table">
+                <thead>
+                    <tr>
+                        <th class="sn-col">S/N</th>
+                        <th class="sub-col">SUBJECT</th>
+                        <th>GRADE</th>
+                        <th>REMARK</th>
+                    </tr>
+                </thead>
+                <tbody>${subjectRows}</tbody>
+            </table>
+
+            <div class="bottom-layout-area">
+                <div class="qr-container-row">
+                    <div class="qr-right-absolute">
+                        <img src="${qrImgUrl}" alt="QR">
+                    </div>
+                </div>
+                <div class="copyright-box-border">
+                    <div class="copyright-center-zone">
+                        &copy; ${examYear} National Examinations Council (NECO)
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="info-grid-3">
-            <div><div class="field-value">${data.exam_number || ''}</div><div class="field-label">Registration Number</div></div>
-            <div><div class="field-value">${data.exam_year || ''}</div><div class="field-label">Exam Year</div></div>
-            <div><div class="field-value">${data.exam_type || 'SSCE_INT'}</div><div class="field-label">Exam Type</div></div>
-        </div>
-        <div class="info-grid-2">
-            <div><div class="field-value">${data.school_number || ''}</div><div class="field-label">Centre Number</div></div>
-            <div><div class="field-value">${data.school_name || ''}</div><div class="field-label">Centre Name</div></div>
-        </div>
-        <table class="subjects-table">
-            <thead><tr><th style="width:10%">S/N</th><th style="width:50%">SUBJECT</th><th style="width:20%">GRADE</th><th style="width:20%">REMARK</th></tr></thead>
-            <tbody>${subjectRows}</tbody>
-        </table>
-        <div class="qr-corner" id="slip-qr-node"></div>
-        <div class="neco-footer">&copy; National Examinations Council (NECO)</div>
     `;
-
     container.appendChild(slip);
-
-    var qrTarget = document.getElementById("slip-qr-node");
-    if (qrTarget) {
-        var qrLink = data.qr_link || (data.qrLink) || (data.qr) || window.location.href;
-        QRCode.toCanvas(qrTarget, qrLink, { width: 90, margin: 1 });
-    }
 }
 
-function renderWaecSlip(container, data) {
+function renderWaecSlip(container, data, qrImgUrl) {
     var slip = document.createElement("div");
     slip.className = "waec-slip";
 
-    var examDisplay = (data.exam_type || 'WASSCE FOR SCHOOL CANDIDATES') + ' ' + (data.exam_year || '');
+    var candidateName = (data.candidate_name || data.name || "").toUpperCase();
+    var examNumber = data.exam_number || data.examNum || "";
+    var schoolName = (data.school_name || data.schoolName || "").toUpperCase();
+    var examYear = data.exam_year || data.examYear || "2026";
+    var examType = data.exam_type || data.examType || "WASSCE FOR SCHOOL CANDIDATES";
+    var examDisplay = examType + " " + examYear;
 
     var subjectRows = "";
-    if (data.subjects) {
-        if (typeof data.subjects === "object") {
-            var keys = Object.keys(data.subjects);
-            for (var i = 0; i < keys.length; i++) {
-                var sub = keys[i];
-                var gr = data.subjects[sub];
-                subjectRows += '<tr><td class="subject-cell">' + sub + '</td><td class="grade-cell"><strong>' + gr + '</strong></td></tr>';
-            }
+    var subjects = data.subjects || data.grades || {};
+    if (typeof subjects === "object") {
+        var keys = Object.keys(subjects);
+        for (var i = 0; i < keys.length; i++) {
+            var sub = keys[i];
+            var gr = subjects[sub];
+            subjectRows += '<tr><td class="subject-cell">' + sub + '</td><td class="grade-cell">' + gr + '</td></tr>';
         }
     }
 
-    slip.innerHTML = `
-        <img src="https://i.imgur.com/211Pe7B.jpeg" class="waec-header-img" alt="WAEC">
-        <div class="waec-exam-desc">Click here to visit our corporate website</div>
-        <div class="waec-results-title">Results</div>
-        <div class="waec-section-title">Candidate's Information</div>
-        <table class="waec-info-table">
-            <tr><td class="label">Examination Number</td><td class="value"><strong>${data.exam_number || ''}</strong></td></tr>
-            <tr><td class="label">Candidate's Name</td><td class="value">${data.candidate_name || ''}</td></tr>
-            <tr><td class="label">Examination</td><td class="value">${examDisplay}</td></tr>
-            <tr><td class="label">Centre</td><td class="value">${data.school_name || ''}</td></tr>
-        </table>
-        <div class="waec-section-title">Subject/Grade</div>
-        <table class="waec-subjects-table"><tbody>${subjectRows}</tbody></table>
-        <div class="waec-section-title">Card Information</div>
-        <table class="waec-card-info"><tr><td style="width:35%">Card Use</td><td style="width:65%">2 of 5</td></tr></table>
-        <div class="waec-note">NOTE: If you have exhausted the allowable number of uses on your scratch card,<br>you will be required to purchase a new result checker card.</div>
-        <div class="waec-qr-row">
-            <div class="qr-area" id="slip-qr-node"></div>
-            <div class="plugin-msg">This plugin is not supported</div>
+   slip.innerHTML = `
+    <img src="https://i.imgur.com/211Pe7B.jpeg" class="waec-header-img" alt="WAEC">
+    <div class="waec-results-title">Results</div>
+    
+    <div class="waec-section-layout">
+        <div class="waec-left-content" style="width: 100%;"> 
+            <div class="waec-section-title">Candidate's Information</div>
+            <table class="waec-info-table">
+                <tr><td class="label">Examination Number</td><td class="value"><strong>${examNumber}</strong></td></tr>
+                <tr><td class="label">Candidate's Name</td><td class="value">${candidateName}</td></tr>
+                <tr><td class="label">Examination</td><td class="value">${examDisplay}</td></tr>
+                <tr><td class="label">Centre</td><td class="value">${schoolName}</td></tr>
+            </table>
+
+            <div class="waec-section-title">Subject/Grade</div>
+            <table class="waec-subjects-table">
+                <tbody>${subjectRows}</tbody>
+            </table>
+
+            <div class="waec-section-title">Card Information</div>
+            <table class="waec-info-table">
+                <tr><td class="label">Card Use</td><td class="value">2 of 5</td></tr>
+            </table>
         </div>
+    </div>
+
+  
+    <div class="waec-qr-wrapper">
+        <img src="${qrImgUrl}" alt="QR">
+    </div>
+
+    <div class="waec-note">NOTE: If you have exhausted the allowable number of uses on your scratch card,<br>you will be required to purchase a new result checker card in order to continue checking your result online.</div>
+    <div class="waec-close-window">Close Window</div>
+
+    <div class="waec-footer-plugin-row">
+        <div class="plugin-msg">This plugin is not supported</div>
+    </div>
     `;
-
     container.appendChild(slip);
-
-    var qrTarget = document.getElementById("slip-qr-node");
-    if (qrTarget) {
-        var qrLink = data.qr_link || (data.qrLink) || (data.qr) || window.location.href;
-        QRCode.toCanvas(qrTarget, qrLink, { width: 90, margin: 1 });
-    }
 }
 
 document.getElementById("print-btn").addEventListener("click", function() {
@@ -809,9 +834,9 @@ document.getElementById("pdf-btn").addEventListener("click", function() {
     var element = document.getElementById("a4-target");
     var opt = {
         margin: 0,
-        filename: "Result_Slip_" + Date.now() + ".pdf",
+        filename: "Result_Slip.pdf",
         image: { type: "jpeg", quality: 1.0 },
-        html2canvas: { scale: 2, useCORS: true, logging: false, allowTaint: true },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
     };
     html2pdf().from(element).set(opt).save();
@@ -830,18 +855,6 @@ function showNotification(message, type) {
 
 document.getElementById("notify-close").addEventListener("click", function() {
     document.getElementById("notification-container").classList.remove("show");
-});
-
-window.addEventListener("load", function() {
-    var cached = localStorage.getItem("active_verified_slip");
-    if (cached) {
-        try {
-            var data = JSON.parse(cached);
-            if (data) {
-                renderSlipStructure(data);
-            }
-        } catch(e) {}
-    }
 });
 </script>
 </body>
