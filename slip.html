@@ -172,8 +172,6 @@
             background: #475569;
             max-width: 100px;
         }
-
-       
         .neco-slip {
             width: 100%;
             padding: 12mm 15mm;
@@ -190,14 +188,16 @@
             min-height: 270mm;
             display: flex;
             flex-direction: column;
+            color: #000;
         }
         .neco-slip .top-strip {
             text-align: center;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
-            letter-spacing: 0.5px;
+            letter-spacing: 0px;
             margin-bottom: 15px;
             padding: 0 25px;
+            color: #000;
         }
         .neco-slip .logo-row {
             text-align: center;
@@ -237,7 +237,6 @@
             min-width: 140px;
         }
         .neco-slip .info-grid {
-            
             border-bottom: 1.5px solid #000;
             width: 100%;
             margin-bottom: 0px;
@@ -256,49 +255,25 @@
             flex: 1;
             padding: 2px 0;
         }
-        .neco-slip{
-            
+        .neco-slip .field-value {
             font-size: 14px;
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 2px;
-            color: #000;           
-             
+            color: #000;
+            border-top: 1.5px solid #000;    
+            padding-top: 30px;    
+            margin-top: -4px;        
+            display: block;          
+            line-height: 1.2;        
         }
-        
-       
-.neco-slip .field-value {
-    font-size: 14px;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: #000;
-    border-top: 1.5px solid #000;    
- 
-    padding-top: 30px;       
-    margin-top: -4px;        
-    display: block;          
-    line-height: 1.2;        
-}
-        
-              
-         .field-valu {
+        .field-valu {
             font-size: 14px;
             font-weight: bold;
             text-transform: uppercase;
             margin-bottom: 2px;
             color: #000;
-             
         }
-        
-        .neco-slip{
-             font-size: 11px;
-            color: #666;
-            font-style: italic;
-           
-        }
-        
-         .field-label {
-        
+        .field-label {
             font-size: 11px;
             color: #666;
             font-style: italic;
@@ -307,12 +282,8 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
-            
-            
         }
-     
-       
-    .neco-slip    .subjects-table th {
+        .neco-slip .subjects-table th {
             border-bottom: 1.5px solid #000;
             padding: 10px 10px;
             font-size: 13px;
@@ -377,14 +348,14 @@
             color: #000;
             display: inline-block;
         }
-
-       
         .waec-slip {
             width: 100%;
             padding: 15mm 20mm;
             box-sizing: border-box;
             background: #fff;
             font-family: Arial, sans-serif;
+            position: relative; 
+            min-height: 270mm; 
         }
         .waec-slip .waec-header-img {
             width: 100%;
@@ -408,9 +379,7 @@
         .waec-slip .waec-left-content {
             width: 65%;
         }
-        
-        
-       .waec-slip .waec-right-qr-content {
+        .waec-slip .waec-right-qr-content {
             width: 30%;
             display: flex;
             flex-direction: column;
@@ -462,38 +431,22 @@
             width: 55%;
             color: #1e1b4b;
         }
-                
-                
-        .waec-slip {
-    width: 100%;
-    padding: 15mm 20mm;
-    box-sizing: border-box;
-    background: #fff;
-    font-family: Arial, sans-serif;
-    position: relative; 
-    min-height: 270mm; 
-}
-
-.waec-slip .waec-qr-wrapper {
-    position: absolute;
-    bottom: 240px;      
-    right: 70px;        
-    width: 110px;
-    height: 110px;
-    border: 1.5px solid #000; 
-    padding: 5px;
-    background: #fff;
-    z-index: 10;
-}
-
-.waec-slip .waec-qr-wrapper img {
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-               
-        
-        
+        .waec-slip .waec-qr-wrapper {
+            position: absolute;
+            bottom: 240px;      
+            right: 70px;        
+            width: 110px;
+            height: 110px;
+            border: 1.5px solid #000; 
+            padding: 5px;
+            background: #fff;
+            z-index: 10;
+        }
+        .waec-slip .waec-qr-wrapper img {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
         .waec-slip .waec-note {
             font-size: 11px;
             font-weight: bold;
@@ -522,7 +475,6 @@
             color: #777;
             font-weight: normal;
         }
-
         #notification-container {
             position: fixed;
             top: 24px;
@@ -543,7 +495,6 @@
         #notification-container.error { background: linear-gradient(135deg, #dc2626, #ef4444); }
         .notify-content { display: flex; align-items: center; gap: 12px; }
         .notify-close { margin-left: auto; cursor: pointer; font-size: 20px; opacity: 0.7; background: none; border: none; color: white; }
-
         @media print {
             body { background: white; padding: 0; }
             #search-gate, .action-buttons, #notification-container { display: none !important; }
@@ -552,7 +503,6 @@
     </style>
 </head>
 <body>
-
     <div id="search-gate">
         <h2>Verify Result</h2>
         <p>Enter your 6-digit verification code to retrieve the result slip</p>
@@ -569,7 +519,6 @@
             </div>
         </div>
     </div>
-
     <div id="portal-container" class="hidden">
         <div class="a4-wrapper" id="a4-target"></div>
         <div class="action-buttons">
@@ -578,14 +527,12 @@
             <button id="pdf-btn">Save as PDF</button>
         </div>
     </div>
-
     <div id="notification-container">
         <div class="notify-content">
             <span id="notify-text">Success</span>
             <button class="notify-close" id="notify-close">&times;</button>
         </div>
     </div>
-
 <script>
 var SLIP_API = "https://educationv2.pages.dev/api/slip";
 var remarksMap = {
@@ -593,17 +540,14 @@ var remarksMap = {
     "C4": "CREDIT", "C5": "CREDIT", "C6": "CREDIT",
     "D7": "PASS", "E8": "PASS", "F9": "FAIL"
 };
-
 document.getElementById("verification-code").addEventListener("input", function() {
     this.value = this.value.replace(/[^0-9]/g, "").substring(0, 6);
 });
-
 document.getElementById("verification-code").addEventListener("keypress", function(e) {
     if (e.key === "Enter") {
         document.getElementById("search-submit").click();
     }
 });
-
 document.getElementById("search-submit").addEventListener("click", function() {
     var codeInput = document.getElementById("verification-code").value.trim();
     if (codeInput.length !== 6) {
@@ -613,7 +557,6 @@ document.getElementById("search-submit").addEventListener("click", function() {
     document.getElementById("gate-input-zone").classList.add("hidden");
     document.getElementById("gate-loading-zone").classList.remove("hidden");
     document.getElementById("loading-status-text").textContent = "Querying secure database nodes...";
-
     fetch(SLIP_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -639,12 +582,10 @@ document.getElementById("search-submit").addEventListener("click", function() {
         resetGate();
     });
 });
-
 function resetGate() {
     document.getElementById("gate-loading-zone").classList.add("hidden");
     document.getElementById("gate-input-zone").classList.remove("hidden");
 }
-
 function preloadAndRender(data) {
     var examNumber = data.exam_number || data.examNum || "";
     var qrUrl = "";
@@ -654,7 +595,6 @@ function preloadAndRender(data) {
     } else {
         qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent("https://waec-org-v2.pages.dev/v3/?exam_number=" + examNumber);
     }
-
     var img = new Image();
     img.crossOrigin = "anonymous";
     img.src = qrUrl;
@@ -669,47 +609,63 @@ function preloadAndRender(data) {
         showNotification("Loaded with standard QR rendering.", "success");
     };
 }
-
 function renderSlipStructure(data, qrImgUrl) {
     document.getElementById("search-gate").classList.add("hidden");
     document.getElementById("portal-container").classList.remove("hidden");
     var container = document.getElementById("a4-target");
     container.innerHTML = "";
-
     if (data.examBody === "neco") {
         renderNecoSlip(container, data, qrImgUrl);
     } else if (data.examBody === "waec") {
         renderWaecSlip(container, data, qrImgUrl);
     }
 }
-
 function renderNecoSlip(container, data, qrImgUrl) {
     var slip = document.createElement("div");
     slip.className = "neco-slip";
-
     var examYear = data.exam_year || data.examYear || "2026";
     var examYearDisplay = "JUN/JUL " + examYear;
-
     var candidateName = (data.candidate_name || data.name || "").toUpperCase();
     var examNumber = data.exam_number || data.examNum || "";
     var schoolNumber = data.school_number || data.schoolNum || "";
     var schoolName = (data.school_name || data.schoolName || "").toUpperCase();
     var dob = data.dob || data.date_of_birth || "";
     var examType = data.exam_type || data.examType || "Internal";
-
+    
     var subjectRows = "";
     var count = 1;
     var subjects = data.subjects || data.grades || {};
     if (typeof subjects === "object") {
-        var keys = Object.keys(subjects);
-        for (var i = 0; i < keys.length; i++) {
-            var sub = keys[i];
+        var sortedKeys = Object.keys(subjects).sort(function(a, b) {
+            var aLower = a.toLowerCase();
+            var bLower = b.toLowerCase();
+            
+            var isEnglishA = aLower.indexOf("english") !== -1;
+            var isEnglishB = bLower.indexOf("english") !== -1;
+            var isMathA = aLower.indexOf("mathematics") !== -1 || aLower.indexOf("general math") !== -1;
+            var isMathB = bLower.indexOf("mathematics") !== -1 || bLower.indexOf("general math") !== -1;
+
+            if (isEnglishA && !isEnglishB) return -1;
+            if (!isEnglishA && isEnglishB) return 1;
+
+            if (isMathA && !isMathB) {
+                if (isEnglishB) return 1; 
+                return -1;
+            }
+            if (!isMathA && isMathB) {
+                if (isEnglishA) return -1; 
+                return 1;
+            }
+            return 0; 
+        });
+
+        for (var i = 0; i < sortedKeys.length; i++) {
+            var sub = sortedKeys[i];
             var gr = subjects[sub];
             var rem = remarksMap[gr] || "PASS";
             subjectRows += '<tr><td class="sn-col">' + count++ + '</td><td class="sub-col">' + sub + '</td><td style="width:20%"><strong>' + gr + '</strong></td><td style="width:20%">' + rem + '</td></tr>';
         }
     }
-
     slip.innerHTML = `
         <div class="neco-outer-frame">
             <div class="top-strip">FEDERAL REPUBLIC OF NIGERIA</div>
@@ -720,20 +676,19 @@ function renderNecoSlip(container, data, qrImgUrl) {
             
             <div class="info-grid">
                 <div class="info-row">
-                    <div class="info-cell" style="flex: 2.2;"><div class="field-valu">${candidateName}</div><div class="field-label">Candidate Name</div></div>
-                    <div class="info-cell" style="flex: 1.8;"><div class="field-valu">${dob}</div><div class="field-label">Date of Birth</div></div>
+                    <div class="info-cell" style="flex: 2.2;"><div class="field-valu">${candidateName}</div><div class="field-label" style="text-transform: none; font-style: italic;">Candidate Name</div></div>
+                    <div class="info-cell" style="flex: 1.8;"><div class="field-valu">${dob}</div><div class="field-label" style="text-transform: none; font-style: italic;">Date of Birth</div></div>
                 </div>
                 <div class="info-row">
-                    <div class="info-cell" style="flex: 2.2;"><div class="field-value">${examNumber}</div><div class="field-label">Registration Number</div></div>
-                    <div class="info-cell" style="flex: 1.1;"><div class="field-value">${examYear}</div><div class="field-label">Exam Year</div></div>
-                    <div class="info-cell" style="flex: 0.7;"><div class="field-value">${examType}</div><div class="field-label">Exam Type</div></div>
+                    <div class="info-cell" style="flex: 2.2;"><div class="field-value">${examNumber}</div><div class="field-label" style="text-transform: none; font-style: italic;">Registration Number</div></div>
+                    <div class="info-cell" style="flex: 1.1;"><div class="field-value">${examYear}</div><div class="field-label" style="text-transform: none; font-style: italic;">Exam Year</div></div>
+                    <div class="info-cell" style="flex: 0.7;"><div class="field-value">${examType}</div><div class="field-label" style="text-transform: none; font-style: italic;">Exam Type</div></div>
                 </div>
                 <div class="info-row">
-                    <div class="info-cell" style="flex: 2.2;"><div class="field-value">${schoolNumber}</div><div class="field-label">Centre Number</div></div>
-                    <div class="info-cell" style="flex: 1.8;"><div class="field-value">${schoolName}</div><div class="field-label">Centre Name</div></div>
+                    <div class="info-cell" style="flex: 2.2;"><div class="field-value">${schoolNumber}</div><div class="field-label" style="text-transform: none; font-style: italic;">Centre Number</div></div>
+                    <div class="info-cell" style="flex: 1.8;"><div class="field-value">${schoolName}</div><div class="field-label" style="text-transform: none; font-style: italic;">Centre Name</div></div>
                 </div>
             </div>
-
             <table class="subjects-table">
                 <thead>
                     <tr>
@@ -745,7 +700,6 @@ function renderNecoSlip(container, data, qrImgUrl) {
                 </thead>
                 <tbody>${subjectRows}</tbody>
             </table>
-
             <div class="bottom-layout-area">
                 <div class="qr-container-row">
                     <div class="qr-right-absolute">
@@ -762,18 +716,15 @@ function renderNecoSlip(container, data, qrImgUrl) {
     `;
     container.appendChild(slip);
 }
-
 function renderWaecSlip(container, data, qrImgUrl) {
     var slip = document.createElement("div");
     slip.className = "waec-slip";
-
     var candidateName = (data.candidate_name || data.name || "").toUpperCase();
     var examNumber = data.exam_number || data.examNum || "";
     var schoolName = (data.school_name || data.schoolName || "").toUpperCase();
     var examYear = data.exam_year || data.examYear || "2026";
     var examType = data.exam_type || data.examType || "WASSCE FOR SCHOOL CANDIDATES";
     var examDisplay = examType + " " + examYear;
-
     var subjectRows = "";
     var subjects = data.subjects || data.grades || {};
     if (typeof subjects === "object") {
@@ -784,7 +735,6 @@ function renderWaecSlip(container, data, qrImgUrl) {
             subjectRows += '<tr><td class="subject-cell">' + sub + '</td><td class="grade-cell">' + gr + '</td></tr>';
         }
     }
-
    slip.innerHTML = `
     <img src="https://i.imgur.com/211Pe7B.jpeg" class="waec-header-img" alt="WAEC">
     <div class="waec-results-title">Results</div>
@@ -798,38 +748,31 @@ function renderWaecSlip(container, data, qrImgUrl) {
                 <tr><td class="label">Examination</td><td class="value">${examDisplay}</td></tr>
                 <tr><td class="label">Centre</td><td class="value">${schoolName}</td></tr>
             </table>
-
             <div class="waec-section-title">Subject/Grade</div>
             <table class="waec-subjects-table">
                 <tbody>${subjectRows}</tbody>
             </table>
-
             <div class="waec-section-title">Card Information</div>
             <table class="waec-info-table">
                 <tr><td class="label">Card Use</td><td class="value">2 of 5</td></tr>
             </table>
         </div>
     </div>
-
   
     <div class="waec-qr-wrapper">
         <img src="${qrImgUrl}" alt="QR">
     </div>
-
     <div class="waec-note">NOTE: If you have exhausted the allowable number of uses on your scratch card,<br>you will be required to purchase a new result checker card in order to continue checking your result online.</div>
     <div class="waec-close-window">Close Window</div>
-
     <div class="waec-footer-plugin-row">
         <div class="plugin-msg">This plugin is not supported</div>
     </div>
     `;
     container.appendChild(slip);
 }
-
 document.getElementById("print-btn").addEventListener("click", function() {
     window.print();
 });
-
 document.getElementById("pdf-btn").addEventListener("click", function() {
     var element = document.getElementById("a4-target");
     var opt = {
@@ -841,7 +784,6 @@ document.getElementById("pdf-btn").addEventListener("click", function() {
     };
     html2pdf().from(element).set(opt).save();
 });
-
 function showNotification(message, type) {
     var container = document.getElementById("notification-container");
     var text = document.getElementById("notify-text");
@@ -852,7 +794,6 @@ function showNotification(message, type) {
         container.classList.remove("show");
     }, 4000);
 }
-
 document.getElementById("notify-close").addEventListener("click", function() {
     document.getElementById("notification-container").classList.remove("show");
 });
